@@ -1,0 +1,332 @@
+\documentclass[12pt]{article}
+\setlength\parindent{0pt}
+\usepackage{mathtools}
+\usepackage{amssymb,amsmath,amsthm,amsfonts}
+\usepackage{thmtools}
+\usepackage{cleveref}
+\usepackage{changepage}
+\usepackage{mathtools}
+\usepackage[margin=0.75in]{geometry}
+\setlength{\parindent}{1cm}
+
+%Allows me to use begin{thm}, begin{lem}, etc.%
+\newtheorem{thm}{Theorem}
+\crefname{thm}{Theorem}{Theorems}
+\newtheorem{prop}[thm]{Proposition}
+\crefname{prop}{Proposition}{Propositions}
+\newtheorem{corollary}[thm]{Corollary}
+\crefname{corollary}{Corollary}{Corollaries}
+\newtheorem{lem}[thm]{Lemma}
+\crefname{lem}{Lemma}{Lemmas}
+\declaretheoremstyle[
+	headfont=\normalfont\itshape , 
+	headindent=\parindent]{casestyle}
+\declaretheorem[
+	style=casestyle ,
+	numberwithin=thm]{case}
+\renewcommand{\thecase}{\arabic{case}} %Suppress thm # before case #
+\theoremstyle{definition}
+\newtheorem{defn}[thm]{Definition}
+\newtheorem{rem}[thm]{Remark}
+
+%Helpful Shortcuts%
+\newcommand{\N}{\mathbb N}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\Q}{\mathbb Q}
+\newcommand{\R}{\mathbb R}
+\newcommand{\C}{\mathbb C}
+\DeclarePairedDelimiter\V{\langle}{\rangle} 
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+
+%Allows me to make use of the \set* command, with a semicolon for the pipe.%
+\usepackage{xparse}
+%
+\DeclarePairedDelimiterX{\set}[1]{\{}{\}}{\setargs{#1}}
+\NewDocumentCommand{\setargs}{>{\SplitArgument{1}{;}}m}
+{\setargsaux#1}
+\NewDocumentCommand{\setargsaux}{mm}
+{\IfNoValueTF{#2}{#1} {#1\,:\,\mathopen{}#2}}%{#1\:;\:#2}
+
+\begin{document}
+
+\section*{The Magnetic Laplacian and its Spectrum}
+
+\begin{defn}
+A \textit{simple graph} is a set of vertices $V$ and a set of oriented edges $E \subseteq V \times V$, where for all $(v, w) \in E$, we have $v \neq w$ and $(w, v) \in E$.
+\end{defn}
+
+\begin{defn}
+A \textit{magnetic graph} is a simple graph $(V, E)$ together with a \textit{signature} function $$\sigma : E \rightarrow \C_{\abs*{z}=1}$$ which has the property $\sigma(v, w) = \overline{\sigma(w,v)}$ for all $(v, w) \in E$. We may abbreviate $\sigma(v, w)$ as $\sigma_{vw}$.
+\end{defn}
+
+We may sometimes treat a simple graph as a magnetic graph, in which case all signatures are assumed to be 1. Unless we explicitly state the vertex set of a graph, it is assumed to be $\set*{1, \dots, n}$ for some $n$.
+
+\begin{defn}
+Suppose $G=(V, E)$ is a magnetic graph with vertices $\set*{1, \dots, n}$. The \textit{Laplacian} of $G$ is the $n$ x $n$ matrix $(l_{ij})$ given by 
+$$
+l_{ij} =
+\begin{cases}
+d_i &\mbox{ if } i=j \\
+-\sigma_{ij} &\mbox{ otherwise}
+\end{cases}
+$$
+for all $i, j \in \set*{1 \dots n}.$
+\end{defn}
+
+Note that this ``magnetic" definition for a Laplacian matches the familiar definition of a Laplacian when the graph is simple. The Laplacian always has a nice spectrum to analyze, as the following theorem shows.
+
+\begin{thm}\label{spectral thm applied to Laplacian}
+If $G$ is a magnetic graph with Laplacian $L$, then there is an orthonormal basis of $\C^n$ consisting of eigenvectors of $L$, and the eigenvalues of $L$ are real.
+\end{thm}
+\begin{proof}
+$L$ is Hermitian because $L = L^*$. Therefore, the Complex Spectral Theorem gives this statement exactly.
+\end{proof}
+
+We also want to establish that the eigenvalues of the Laplacian are non-negative. We will follow Jiang's paper (Theorem 3.5 and the preceding discussion), but modified slightly for magnetic graphs.
+
+\begin{defn}
+Let $G=(E,V)$ be a magnetic graph on $n$ vertices with Laplacian $L$. For an edge $(e, v)$ of $G$, the \textit{contribution} of $(e, v)$ to $L$ is the $n$ x $n$ matrix $(l_{ij})$ given by
+$$
+l_{ij} =
+\begin{cases}
+1 &\mbox{ if } i=j \mbox{ and } i \in \set*{e, v} \\
+-\sigma_{ij} &\mbox{ if } \set*{i,j} = \set*{e,v} \\
+0 &\mbox{ otherwise}
+\end{cases}.
+$$ 
+We denote this matrix $L_{(e, v)}$.
+\end{defn}
+
+As the name ``contribution" suggests, the Laplacian of a graph is the sum of the contributions of its edges (only counting one edge between each pair of vertices):
+
+\begin{prop}
+If $G$ is a magnetic graph with Laplacian $L$, then 
+$$
+L = \sum_{\substack{(i, j) \in E \\ i < j}} L_{(i, j)}.
+$$
+\end{prop}
+
+For the next few propositions, remember that if $z \in \C$, then $z \geq 0$ means $z$ is real and nonnegative. Also, $\cdot$ is the complex dot product.
+
+\begin{prop}\label{contributions to Laplacian are positive semi-definite}
+Let $G=(E, V)$ be a magnetic graph on $n$ vertices with Laplacian $L$, and let $(i, j) \in E$. Then for any vector $v \in \C^n$, we have 
+$$v \cdot L_{(i,j)} v \geq 0.$$
+\end{prop}
+\begin{proof}
+Let $v = (v_1, \dots, v_n)$. By direct computation, the vector $L_{(i,j)}v$ consists of all 0s, except for $v_i-\sigma_{ij}v_j$ in the $i$th slot and $v_j-\sigma_{ji}v_i$ in the $j$th slot. Therefore,
+\begin{align*}
+v \cdot L_{(i,j)} v &= v_i \overline{v_i-\sigma_{ij}v_j} + v_j \overline{v_j-\sigma_{ji}v_i} \\
+&= v_i \left(\overline{v_i} - \overline{\sigma_{ij}}\overline{v_j}\right) + v_j \left(\overline{v_j} - \overline{\sigma_{ji}}\overline{v_i}\right) \\
+&= \abs*{v_i}^2 - v_i\overline{\sigma_{ij}}\overline{v_j} - v_j\overline{\sigma_{ji}}\overline{v_i} + \abs*{v_j}^2 \\
+&= \abs*{v_i}^2 - \sigma_{ji}v_i\overline{v_j} - \overline{\sigma_{ji}v_i\overline{v_j}} + \abs*{v_j}^2 \\
+&= \abs*{v_i}^2 - \left(\sigma_{ji}v_i\overline{v_j} + \overline{\sigma_{ji}v_i\overline{v_j}}\right) + \abs*{v_j}^2 \\
+&= \abs*{v_i}^2 - 2 \mathrm{Re}\left(\sigma_{ji}v_i\overline{v_j}\right) + \abs*{v_j}^2 \\
+&\geq \abs*{v_i}^2 - 2 \abs*{\mathrm{Re}\left(\sigma_{ji}v_i\overline{v_j}\right)} + \abs*{v_j}^2 \\
+&\geq \abs*{v_i}^2 - 2 \abs*{\sigma_{ji}v_i\overline{v_j}} + \abs*{v_j}^2 \\
+&= \abs*{v_i}^2 - 2 \abs*{\sigma_{ji}}\abs*{v_i}\abs*{\overline{v_j}} + \abs*{v_j}^2 \\
+&= \abs*{v_i}^2 - 2 \abs*{\sigma_{ji}}\abs*{v_i}\abs*{\overline{v_j}} + \abs*{v_j}^2 \\
+&= \abs*{v_i}^2 - 2 \abs*{v_i}\abs*{v_j} + \abs*{v_j}^2 \\
+&= (\abs*{v_i} - \abs*{v_j})^2 \\
+&\geq 0.
+\end{align*}
+\end{proof}
+
+\begin{prop}\label{Laplacian is positive semi-definite}
+Let $G=(E, V)$ be a magnetic graph on $n$ vertices with Laplacian $L$. Then for any vector $v \in \C^n$, we have 
+$$v \cdot L v \geq 0.$$
+\end{prop}
+\begin{proof}
+We have:
+$$v \cdot Lv 
+= v \cdot \left(\sum_{\substack{(i, j) \in E \\ i < j}} L_{(i, j)}\right)v
+= v \cdot \sum_{\substack{(i, j) \in E \\ i < j}} L_{(i, j)} v = \sum_{\substack{(i, j) \in E \\ i < j}} \left(v \cdot L_{(i, j)} v\right),
+$$
+where the last equality holds because inner products are additive in the second slot. By \cref{contributions to Laplacian are positive semi-definite}, this is a sum of nonnegative real numbers, so $v \cdot Lv \geq 0$.
+\end{proof}
+
+\begin{thm}
+If $G$ is a magnetic graph with Laplacian $L$, then the eigenvalues of $L$ are nonnegative.
+\end{thm}
+\begin{proof}
+Let $\lambda$ be an eigenvalue of $L$, and let $v \in \C^n$ be a nonzero eigenvector corresponding to $\lambda$. Then,
+\begin{align*}
+\lambda (v \cdot v) &= v \cdot \overline\lambda v \\
+&= v \cdot \lambda v &&\text{(since $\lambda$ is real by \cref{spectral thm applied to Laplacian})} \\
+&= v \cdot L v \\
+&\geq 0 &&\text{(by \cref{Laplacian is positive semi-definite})}. \\
+\end{align*}
+But $v$ is nonzero, so $v \cdot v \geq 0$ by the definition of inner product. Thus we may conclude that $\lambda \geq 0$.
+\end{proof}
+
+\section*{The Eigenvalue 0}
+
+If $G$ is a magnetic graph with vertices $\set*{1, \dots, n}$ and $x$ is a vector in $\C^n$, then it makes sense to imagine $x$ as consisting of values for the vertices of $G$. Specifically, the entry $x_i$ is like a value for the vertex $i$. With this interpretation, multiplying $x$ by the Laplacian of $G$ creates a new list of vertex values by taking linear combinations of the current vertex values. The weights of the combinations are determined by the structure of the Laplacian. In fact, the next proposition shows that a vertex's new value after the multiplication depends only on its current value and the values of its neighbors.   
+
+
+\begin{prop}\label{Laplacian times vector}
+Let $G$ be a magnetic graph on $n$ vertices with Laplacian $L$. Let $x \in \C^n$ with $x = (x_1, \dots, x_n)$. Then
+$$(Lx)_i = d_ix_i - \sum_{j \sim i} \sigma_{ij} x_j$$
+for each $i \in \set*{1, \dots, n}$.
+\end{prop}
+\begin{proof}
+Let $l_{ij}$ denote the element of $L$ at row $i$ and column $j$. Let $i \in \set*{1, \dots, n}$ be given. Then,
+\begin{align*}
+(Lx)_i &= \sum_{j=1}^n l_{ij}x_j \\
+&= l_{ii}x_i + \sum_{j \neq i} l_{ij}x_j \\
+&= d_i x_i + \sum_{j \neq i} (-\sigma_{ij})x_j \\
+&= d_i x_i - \sum_{j \neq i} \sigma_{ij}x_j.
+\end{align*}
+\end{proof}
+
+We are particularly interested in when the ``vertex values" all go to 0 under multiplication by the Laplacian. It turns out that this happens exactly when each value is a signature-weighted average of the neighboring values, as the next lemma demonstrates.
+
+\begin{lem}\label{entries of vector in Laplacian's null space are signature-weighted averages}
+Let $G$ be a magnetic graph on $n$ vertices with Laplacian $L$. Suppose $x \in \C^n$ with $x = (x_1, \dots, x_n)$. Then $Lx = 0$ if and only if
+$$x_i = \frac{1}{d_i} \sum_{j \sim i} \sigma_{ij}x_j$$
+for each $i \in \set*{1, \dots n}$ with $d_i \neq 0$.
+\end{lem}
+\begin{proof}
+This follows easily from \cref{Laplacian times vector}.
+\end{proof}
+
+We now show that this condition is equivalent to a much simpler one.
+
+\begin{thm}\label{characterization of null space of Laplacian}
+Let $G$ be a magnetic graph on $n$ vertices with Laplacian $L$. Suppose $x \in \C^n$ with $x = (x_1, \dots, x_n)$. Then $Lx = 0$ if and only if
+$$x_i = \sigma_{ij}x_j$$
+whenever $i \sim j$.
+\end{thm}
+\begin{proof}
+$(\leftarrow)$ Suppose $x_i = \sigma_{ij}x_j$ whenever $i \sim j$. We will show that $Lx = 0$ using the condition from \cref{entries of vector in Laplacian's null space are signature-weighted averages}. Fix $i \in \set*{1, \dots, n}$ with $d_i \neq 0$. Then,
+$$
+x_i 
+= \frac{1}{d_i} d_i x_i
+= \frac{1}{d_i} \sum_{j \sim i} x_i
+= \frac{1}{d_i} \sum_{j \sim i} \sigma_{ij}x_j.
+$$ 
+
+$(\rightarrow)$ Suppose $Lx = 0$. We first argue that whenever $a$ and $b$ are vertices in the same connected component of $G$, we have $\abs*{x_a} = \abs*{x_b}$. To see this, take an arbitrary connected component of $G$, and choose a vertex $m$ in that component which maximizes $\abs*{x_m}$. If $d_m = 0$, then $m$ is the only vertex in the component, so our conclusion holds trivially. On the other hand, if $d_m \neq 0$, then we can apply \cref{entries of vector in Laplacian's null space are signature-weighted averages} to get
+\begin{align*}
+\abs*{x_m} &= \abs*{\frac{1}{d_m} \sum_{l \sim m} \sigma_{ml} x_l} \\
+&= \frac{1}{d_m} \abs*{\sum_{l \sim m} \sigma_{ml} x_l} \\
+&\leq \frac{1}{d_m} \sum_{l \sim m} \abs*{\sigma_{ml} x_l} && \text{(by the Triangle Inequality)} \\
+&= \frac{1}{d_m} \sum_{l \sim m} \abs*{x_l}.
+\end{align*}
+That is, $\abs*{x_m}$ is the mean of the values $\abs{x_l}$ where $l \sim m$. But our choice of $m$ ensures that $\abs*{x_m} \geq \abs*{x_l}$ for each $l \sim m$, so in fact $\abs*{x_m} = \abs*{x_l}$ for each $l \sim m$. It follows that any vertex $l$ which is adjacent to $m$ also maximizes the quantity $\abs*{x_l}$, so we can apply the same argument to each $l$, repeating the process until we conclude that $\abs*{x_a} = \abs*{x_b}$ for every pair of vertices $a, b$ in the connected component.
+
+Now let $i$ and $j$ be vertices of $G$ with $i \sim j$. We want to prove that $x_i = \sigma_{ij}x_j$. From the previous paragraph, we already have that
+$$\abs*{x_i} = \abs*{x_j} = \abs*{\sigma_{ij} x_j},$$
+so it suffices to show $x_i$ differs from $\sigma_{ij} x_j$ by a positive real factor. Observe that 
+\begin{align*}
+\abs*{\sum_{l \sim i} \sigma_{il}x_l} &= \abs*{d_i x_i} && \text{(by \cref{entries of vector in Laplacian's null space are signature-weighted averages})} \\
+&= d_i \abs*{x_i} \\
+&= \sum_{l \sim i} \abs*{x_i} \\
+&= \sum_{l \sim i} \abs*{x_l} && \text{(by the previous paragraph)} \\
+&= \sum_{l \sim i} \abs*{\sigma_{il} x_l}.
+\end{align*}
+Therefore, assuming $\sigma_{ij} x_j \neq 0$ (the other case is trivial), we may conclude that 
+$$\sum_{l \sim i} \sigma_{il}x_l = r (\sigma_{ij}x_j)$$
+for some positive real $r$. Then,
+\begin{align*}
+x_i &= \frac{1}{d_i} \sum_{l \sim i} \sigma_{il}x_l && \text{(by \cref{entries of vector in Laplacian's null space are signature-weighted averages})} \\
+&= \frac{1}{d_i} r (\sigma_{ij}x_j),
+\end{align*}
+so $x_i$ differs from $\sigma_{ij}x_j$ by a positive real factor, as desired.
+\end{proof}
+
+\begin{corollary}
+Let $G$ be a simple graph on $n$ vertices with Laplacian $L$. Suppose $x \in \C^n$ with $x = (x_1, \dots, x_n)$. Then $Lx = 0$ if and only if $$x_i = x_j$$ whenever $i \sim j$.
+\end{corollary}
+\begin{proof}
+This follows from \cref{characterization of null space of Laplacian} and the fact that every signature in a simple graph is 1.
+\end{proof}
+
+For what magnetic graphs does the Laplacian have 0 as an eigenvalue? And when 0 is an eigenvalue, what is its multiplicity? In other words, we want to know how a magnetic graph is related to the nullity of its Laplacian. The following definition will help to answer this question.
+
+\begin{defn}
+A magnetic graph is called \textit{consistent} if the signatures along any closed walk multiply to 1.
+\end{defn}
+
+\begin{prop}\label{equivalent conditions for consistency}
+Let $G=(E, V)$ be a magnetic graph. Then the following are equivalent.
+\begin{enumerate}
+\item G is consistent.
+\item The signatures along any cycle multiply to 1 (in either direction).
+\item For every pair of connected vertices $u, v \in V$, there exists $z \in \C_{\abs*{z}=1}$ such that along every walk from $u$ to $v$, the signatures multiply to $z$. 
+\end{enumerate}
+\end{prop}
+
+Condition 3 was the reason for the name ``consistent." Because the number $z$ in that condition is clearly unique for each pair of connected vertices, we can make the following definition.
+
+\begin{defn}
+Let $G=(E,V)$ be a consistent magnetic graph, and let $u, v \in V$. Then the \textit{signature distance} from $u$ to $v$, written sigdist$(u, v)$, is the product of the signatures along every walk from $u$ to $v$ (or $\infty$ if $u$ and $v$ are disconnected).
+\end{defn}
+
+Now we can achieve our goal of relating a magnetic graph to the nullity of its Laplacian.
+
+\begin{thm}
+Let $G$ be a magnetic graph with Laplacian $L$. Then the nullity of $L$ is equal to the number of consistent connected components of $G$.
+\end{thm}
+\begin{proof}
+Let $n$ be the number of vertices in $G$, and let 
+$$C_1=(E_1, V_1), \dots, C_k=(E_k, V_k)$$
+be the consistent connected components of $V$, where $k$ may be 0. Our goal is to construct a basis for the null space of $L$ consisting of $k$ vectors in $\C^n$. We begin by choosing vertices 
+$$u_1 \in V_1, \dots, u_k \in V_k.$$
+Then, we construct our basis vectors $w_1, \dots, w_k \in \C^n$ as follows. For each $i \in \set*{1, \dots k}$, define the $j$th entry of $w_i$ to be
+$$
+(w_i)_j = 
+\begin{cases}
+\text{sigdist}(j, u_i) &\mbox{ if } j \in V_i \\
+0 &\mbox{ otherwise}
+\end{cases}.
+$$ 
+It remains to argue that $w_1, \dots, w_k$ is indeed a basis for null $L$. Start by observing that for each $i \in \set*{1, \dots k}$, $w_i$ is the only basis vector which is nonzero at the indices in $V_i$. This proves linear independence. 
+
+To show that span $(w_1, \dots, w_k) \subseteq$ null $L$, it suffices to show each $w_i \in$ null $L$. We will use the equivalent condition given in \cref{characterization of null space of Laplacian}. That is, we will show that for any vertices $a \sim b$, 
+$$(w_i)_a = \sigma_{ab}(w_i)_b.$$
+If the connected component containing $a$ and $b$ is \underline{not} $C_i$, then $(w_i)_a = (w_i)_b = 0$, so the desired equality holds. On the other hand, suppose the connected component containing $a$ and $b$ is $C_i$. Then
+\begin{align*}
+(w_i)_a
+&= \text{sigdist}(a, u_i) \\
+&= \sigma_{ab} \text{sigdist}(b, u_i) \\
+&= \sigma_{ab} (w_i)_b.
+\end{align*}
+
+Finally we will prove that null $L \subseteq$ span $(w_1, \dots, w_k)$. Let $x \in$ null $L$. We claim 
+\begin{equation}\label{eqn:goal}
+x = x_{u_1} w_1 + \dots + x_{u_k} w_k, \tag{$\star$}
+\end{equation}
+which we will prove for each index in the vector. To that end, let $j$ be an index in $\set*{1, \dots, n}$.
+
+\begin{case}
+As a vertex, $j$ belongs to an inconsistent connected component. Call it $I$. Then the RHS of \eqref{eqn:goal} is 0 at index $j$, so we must show $x_j = 0$ too. Since $I$ is inconsistent, it has a closed walk along which the signatures multiply to some $c \neq 1$. Let $z$ be the starting and ending vertex of the walk. Repeated application of \cref{characterization of null space of Laplacian} along that walk gives that $x_z = c x_z$, so $x_z = 0$. Then applying \cref{characterization of null space of Laplacian} along a path from $z$ to $j$, we get $x_j = 0$, as desired. So \eqref{eqn:goal} holds at index $j$.  
+\end{case}
+\begin{case}
+As a vertex, $j$ belongs to a consistent connected component. Say, $C_\alpha$ where $\alpha \in \set*{1, \dots, k}$. Then 
+\begin{align*}
+x_j &= x_{u_\alpha} \text{sigdist}(j, u_\alpha) && \text{(repeatedly applying \cref{characterization of null space of Laplacian})} \\
+&= x_{u_\alpha} (w_\alpha)_j \\
+&= x_{u_1} (w_1)_j + \dots + x_{u_k} (w_k)_j && \text{(introducing 0 terms)} \\
+&= (x_{u_1} w_1 + \dots + x_{u_k} w_k)_j.
+\end{align*}
+So in this case as well, \eqref{eqn:goal} holds at index $j$.
+\end{case}
+
+\end{proof}
+
+\begin{corollary}
+The Laplacian of a simple graph always has 0 as an eigenvalue.
+\end{corollary}
+\begin{proof}
+A simple graph is consistent because all its signatures are 1. Thus it has at least one consistent connected component, so the nullity of the Laplacian is at least 1.
+\end{proof}
+
+\begin{corollary}
+The Laplacian of an acyclic magnetic graph always has 0 as an eigenvalue.
+\end{corollary}
+\begin{proof}
+An acyclic graph is consistent because it vacuously satisfies condition 2 of \cref{equivalent conditions for consistency}. Thus it has at least one consistent connected component, so the nullity of the Laplacian is at least 1.
+\end{proof}
+
+\end{document}
