@@ -159,7 +159,86 @@ Let $\lambda$ be an eigenvalue of $L$, and let $v \in \C^n$ be a nonzero eigenve
 But $v$ is nonzero, so $v \cdot v \geq 0$ by the definition of inner product. Thus we may conclude that $\lambda \geq 0$.
 \end{proof}
 
-\section*{The Eigenvalue 0}
+\section*{Renumbering Vertices}
+
+The Laplacian of a magnetic graph is only defined when the graph's vertices are numbered $1, \dots, n$, and changing the numbering changes the Laplacian. However, we will show in this section that changing the vertex numbering has no effect on the spectrum of the Laplacian. This will allow us to refer to the ``spectrum of the Laplacian" of any magnetic graph, even if its vertices are not numbered or we don't know how they're numbered. With that goal in mind, we will first need a few facts about similar matrices.
+
+\begin{prop}\label{similar matrices have same nullity}
+Suppose $A$ and $B$ are similar $n \times n$ matrices over $\C$. Then $A$ and $B$ have the same nullity.
+\end{prop}
+\begin{proof}
+Since $A$ and $B$ are similar, there exists an invertible matrix $P \in M_{n \times n}(\C)$ such that $$B = P^{-1} A P.$$ Let $k$ be the nullity of $A$. Then there exists a basis $x_1, \dots, x_k$ of $\ker A$, where each $x_i \in \C^n$. To show that $k$ is also the nullity of $B$, we will show that 
+$$P^{-1}x_1, \dots, P^{-1}x_k$$
+is a basis for $\ker B$. First note that those vectors are linearly independent, since $x_1, \dots, x_k$ are linearly independent, and an invertible linear map preserves linear independence. To see that $\text{span} (P^{-1}x_1, \dots, P^{-1}x_k) \subseteq \ker B$, observe that for any $i \in \set*{1, \dots, k}$, we have
+\begin{align*}
+B(P^{-1}x_i)
+&= (P^{-1}AP)P^{-1}x_i \\
+&= P^{-1} A x_i \\
+&= P^{-1} (0) \\
+&= 0,
+\end{align*}
+so $P^{-1}x_i \in \ker B$. It remains to show that $\ker B \subseteq \text{span} (P^{-1}x_1, \dots, P^{-1}x_k)$. To that end, let $v \in \ker B$. Then,
+\begin{align*}
+P^{-1}AP v = B v = 0 \\
+&\rightarrow AP v = 0 \\
+&\rightarrow Pv \in \ker A \\
+&\rightarrow Pv = c_1 x_1 + \dots + c_k x_k &&\text{for some $c_1, \dots, c_k \in \C$} \\
+&\rightarrow v = c_1 P^{-1} x_1 + \dots + c_k P^{-1} x_k &&\text{for some $c_1, \dots, c_k \in \C$} \\
+&\rightarrow v \in \text{span} (P^{-1}x_1, \dots, P^{-1}x_k).
+\end{align*} 
+\end{proof}
+
+\begin{prop}
+Suppose $A$ and $B$ are similar $n \times n$ matrices over $\C$. Then $A$ and $B$ have the same eigenvalues, counting multiplicity.
+\end{prop}
+\begin{proof}
+Given $\lambda \in \C$ and $k \in \N$, we must show that $\lambda$ is an eigenvalue of $A$ with multiplicity $k$ if and only if $\lambda$ is an eigenvalue of $B$ with multiplicity $k$. The directions are analogous, so we will only show the forward direction. Suppose $\lambda$ is an eigenvalue of $A$ with multiplicity $k$. Since $A$ and $B$ are similar, there exists an invertible matrix $P \in M_{n \times n}(\C)$ such that 
+$$B = P^{-1} A P.$$
+Then, we have
+\begin{align*}
+\dim \ker (B - \lambda I) 
+&= \dim \ker (P^{-1} A P - \lambda I) \\
+&= \dim \ker (P^{-1} (A - \lambda I) P) \\
+&= \dim \ker (A - \lambda I) &&\text{(by \cref{similar matrices have same nullity})} \\
+&= k.
+\end{align*}
+Therefore, $\lambda$ is an eigenvalue of $B$ with multiplicity $k$.
+\end{proof}
+
+\begin{prop}
+Let $\phi$ be a permutation of $\set*{1, \dots, n}$, and let $A, B \in M_{n \times n}(\C)$ be related by 
+$$A_{ij} = B_{\phi(i)\phi(j)}$$
+for all $i, j \in \set*{1, \dots, n}$. Then
+$$A=P^{-1}BP$$
+for some permutation matrix $P \in M_{n \times n}(\C)$.
+\end{prop}
+\begin{proof}
+//TODO
+\end{proof}
+
+Finally we can prove the main theorem of this section:
+
+\begin{thm}\label{renumbering vertices doesn't change Laplacian spectrum}
+Let $G$ be a magnetic graph with vertices $\set*{1, \dots, n}$. Then renumbering the vertices of $G$ does not change the spectrum of its Laplacian.
+\end{thm}
+\begin{proof}
+//TODO
+\end{proof}
+
+As an example of the importance of \cref{renumbering vertices doesn't change Laplacian spectrum}, the following theorem wouldn't make sense without it. //TODO explain further.
+
+\begin{thm}
+Let $G$ be a magnetic graph with Laplacian $L$, and let $G_1, \dots G_k$ be the connected components of $G$, with Laplacians $L_1, \dots, L_k$. 
+\end{thm}
+\begin{proof}
+//TODO
+\end{proof}
+
+\section*{Switching Equivalence}
+
+
+
+\section*{The Eigenvalue 0 of the Laplacian}
 
 If $G$ is a magnetic graph with vertices $\set*{1, \dots, n}$ and $x$ is a vector in $\C^n$, then it makes sense to imagine $x$ as consisting of values for the vertices of $G$. Specifically, the entry $x_i$ is like a value for the vertex $i$. With this interpretation, multiplying $x$ by the Laplacian of $G$ creates a new list of vertex values by taking linear combinations of the current vertex values. The weights of the combinations are determined by the structure of the Laplacian. In fact, the next proposition shows that a vertex's new value after the multiplication depends only on its current value and the values of its neighbors.   
 
