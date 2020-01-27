@@ -205,7 +205,7 @@ Then, we have
 Therefore, $\lambda$ is an eigenvalue of $B$ with multiplicity $k$.
 \end{proof}
 
-\begin{prop}
+\begin{prop}\label{permuted matrices are similar}
 Let $\phi$ be a permutation of $\set*{1, \dots, n}$, and let $A, B \in M_{n \times n}(\C)$ be related by 
 $$A_{ij} = B_{\phi(i)\phi(j)}$$
 for all $i, j \in \set*{1, \dots, n}$. Then
@@ -213,7 +213,25 @@ $$A=P^{-1}BP$$
 for some permutation matrix $P \in M_{n \times n}(\C)$.
 \end{prop}
 \begin{proof}
-//TODO
+Define $P$ by 
+$$
+P_{ij} = 
+\begin{cases}
+1 &\mbox{ if } i=\phi(j) \\
+0 &\mbox{ otherwise}
+\end{cases}.
+$$
+Since $P$ is a permutation matrix, its inverse is its transpose, so the elements of $P^{-1}$ are given by
+$$
+P^{-1}_{ij} = 
+P_{ji} =
+\begin{cases}
+1 &\mbox{ if } j=\phi(i) \\
+0 &\mbox{ otherwise}
+\end{cases}.
+$$
+It can now be verified by computation that for all $i, j \in \set*{1, \dots, n}$, we have
+$$\left( P^{-1}BP \right)_{ij} = B_{\phi(i)\phi(j)} = A_{ij}.$$
 \end{proof}
 
 Finally we can prove the main theorem of this section:
@@ -222,16 +240,44 @@ Finally we can prove the main theorem of this section:
 Let $G$ be a magnetic graph with vertices $\set*{1, \dots, n}$. Then renumbering the vertices of $G$ does not change the spectrum of its Laplacian.
 \end{thm}
 \begin{proof}
-//TODO
+Let $L$ be the Laplacian of $G$. Renumbering the vertices of $G$ means selecting a permutation $\phi$ of $\set*{1, \dots, n}$ and replacing each vertex $v$ with $\phi(v)$. This results in a new Laplacian $L^\prime$, where clearly $L^\prime_{ij} = L_{\phi^{-1}(i)\phi^{-1}(j)}$ for all $i, j$. Applying \cref{permuted matrices are similar}, we get that 
+$$L^\prime_{ij}=P^{-1}LP$$
+for some permutation matrix $P$. Finally, \cref{similar matrices have same spectrum} gives that $L^\prime$ has the same spectrum as $L$.  
 \end{proof}
 
-As an example of the importance of \cref{renumbering vertices doesn't change Laplacian spectrum}, the following theorem wouldn't make sense without it. //TODO explain further.
+As an example of the importance of \cref{renumbering vertices doesn't change Laplacian spectrum}, the following theorem would be confusing without it. In this theorem, we can assume that the vertices of $G$ are the numbers $1, \dots, n$, so we know exactly what matrix is meant by the Laplacian $L$ of $G$. However, if the vertices of $G$ are indeed $1, \dots, n$, then it isn't possible for all the connected components to also have vertices in that format (only one of the components could get the vertex 1, for example). Therefore, the Laplacians $L_1, \dots, L_k$ are ambiguous. The key is to remember that every numbering for the vertices of a component gives a Laplacian with the same spectrum, so it doesn't matter which one we choose. $L_1, \dots, L_k$ are not really \textit{the} Laplacians of $G_1, \dots, G_k$, but rather some Laplacians that result from an arbitrary choice of vertex numberings. And the theorem holds regardless of the choice. 
+
+It might simplify the numbering considerations if we define the \textit{Laplacian spectrum} of a graph, which would be the unique spectrum resulting from every numbering of the vertices. The Laplacian spectrum would then be independent of the choice of numbering, meaning we could often ignore numberings entirely, or just choose them as we need them. But I'm not sure that's worth creating a new definition.
 
 \begin{thm}\label{spectrum is sum of spectra of connected components}
-Let $G$ be a magnetic graph with Laplacian $L$, and let $G_1, \dots G_k$ be the connected components of $G$, with Laplacians $L_1, \dots, L_k$. 
+Let $G$ be a magnetic graph with Laplacian $L$, and let $G_1, \dots G_k$ be the connected components of $G$, with Laplacians $L_1, \dots, L_k$. Then the spectrum of $L$ is equal to the joined spectra of $L_1, \dots, L_k$.  
 \end{thm}
 \begin{proof}
-//TODO
+Renumber the vertices of $G$ so that all the vertices of $G_1$ precede all the vertices of $G_2$, and so on. By \cref{renumbering vertices doesn't change Laplacian spectrum}, this doesn't affect the spectrum of $L$. But it makes $L$ into a block diagonal matrix whose blocks $B_1, \dots, B_k$ are some Laplacians of $G_1, \dots, G_k$, respectively. Since $B_1, \dots, B_k$ are Laplacians of $G_1, \dots, G_k$, \cref{renumbering vertices doesn't change Laplacian spectrum} says they have the same spectra as $L_1, \dots, L_k$. Therefore, it suffices to prove the spectrum of $L$ is equal to the joined spectra of $B_1, \dots, B_k$.
+
+Let $\lambda \in \C$, and let $m_1, \dots, m_k$ be the multiplicities of $\lambda$ as an eigenvalue of $B_1, \dots, B_k$, respectively. We will be done if we can show that the multiplicity of $\lambda$ as an eigenvalue of $L$ is equal to $m_1 + \dots + m_k$. Indeed, the multiplicity of $\lambda$ as an eigenvalue of $L$ is
+\begin{align*}
+\dim \ker (L - \lambda I)
+&= \dim \ker \left(
+\begin{pmatrix}
+B_1 &  &  & 0 \\
+ & B_2 &  &  \\
+  &   & \ddots &  \\
+0 &  &  & B_k 
+\end{pmatrix} 
+- \lambda I
+\right) \\
+&= \dim \ker
+\begin{pmatrix}
+B_1 - \lambda I &  &  & 0 \\
+ & B_2 - \lambda I &  &  \\
+  &   & \ddots &  \\
+0 &  &  & B_k - \lambda I
+\end{pmatrix} \\
+&= \dim \ker (B_1 - \lambda I) + \dots + \dim \ker (B_k - \lambda I) \\
+&= m_1 + \dots + m_k.
+\end{align*}
+Here, the second to last equality holds because the nullity of a block diagonal matrix is equal to the sum of the nullities of the blocks (to see this, prove the analogous statement for rank, apply the rank nullity theorem, and simplify).
 \end{proof}
 
 \section{Balanced Magnetic Graphs}
