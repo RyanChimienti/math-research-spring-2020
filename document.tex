@@ -227,7 +227,7 @@ Let $G$ be a magnetic graph with vertices $\set*{1, \dots, n}$. Then renumbering
 
 As an example of the importance of \cref{renumbering vertices doesn't change Laplacian spectrum}, the following theorem wouldn't make sense without it. //TODO explain further.
 
-\begin{thm}
+\begin{thm}\label{spectrum is sum of spectra of connected components}
 Let $G$ be a magnetic graph with Laplacian $L$, and let $G_1, \dots G_k$ be the connected components of $G$, with Laplacians $L_1, \dots, L_k$. 
 \end{thm}
 \begin{proof}
@@ -324,7 +324,9 @@ $(\rightarrow)$ Suppose $G^\sigma$ and $G^\tau$ are switching equivalent. Then t
 \end{align*} 
 Therefore, along every closed walk, the product of the signatures of $G^\sigma$ equals the product of the signatures of $G^\tau$.
 
-$(\leftarrow)$ Suppose that along every closed walk, the product of the signatures of $G^\sigma$ equals the product of the signatures of $G^\tau$. Define a new graph $G^s = (V, E, s)$, where the signatures $s$ are given by $s_{vw} = \overline{\tau_{vw}} \sigma_{vw}$ for all vertices $v \sim w$. It is easy to see that along any closed walk, the signatures of $G^s$ multiply to 1. Therefore, $G^s$ is balanced. By \cref{balanced implies switching equivalent to simple graph}, it follows that $G^s$ is switching equivalent to the simple graph on $(V, E)$, whose signatures are all 1. Call the switching function that takes $G^s$ to the simple graph $c$. Then for any vertices $v \sim w$, we have
+$(\leftarrow)$ Suppose that along every closed walk, the product of the signatures of $G^\sigma$ equals the product of the signatures of $G^\tau$. Define a new graph $G^s = (V, E, s)$, where the signatures $s$ are given by 
+$$s_{vw} = \overline{\tau_{vw}} \sigma_{vw}$$ 
+for all vertices $v \sim w$. It is easy to see that along any closed walk, the signatures of $G^s$ multiply to 1. Therefore, $G^s$ is balanced. By \cref{balanced implies switching equivalent to simple graph}, it follows that $G^s$ is switching equivalent to the simple graph on $(V, E)$, whose signatures are all 1. Call the switching function that takes $G^s$ to the simple graph $c$. Then for any vertices $v \sim w$, we have
 \begin{align*}
 \overline{c_v} s_{vw} c_w = 1
 &\rightarrow \overline{c_v} \left(\overline{\tau_{vw}} \sigma_{vw}\right) c_w = 1 \\
@@ -335,7 +337,7 @@ Therefore, applying the switching function $c$ to $G^\sigma$ gives $G^\tau$, so 
 
 Many nice consequences flow from this characterization of switching equivalence. 
 
-\begin{corollary}
+\begin{corollary}\label{balanced iff switching equivalent to simple graph}
 A magnetic graph is balanced if and only if it is switching equivalent to the simple graph with the same vertices and edges.
 \end{corollary}
 
@@ -355,16 +357,16 @@ Every acyclic magnetic graph is switching equivalent to the simple graph.
 Every magnetic cycle graph is switching equivalent to a graph which differs from the simple graph by at most one edge. 
 \end{corollary}
 
-
 The next theorem is why we care about switching equivalence in the context of spectral graph theory.
 
-\begin{thm}
+\begin{thm}\label{switching preserves spectrum}
 Let $G^\sigma = (V, E, \sigma)$ and $G^\tau = (V, E, \tau)$ be magnetic graphs with the same vertices and edges. Then if $G^\sigma$ and $G^\tau$ are switching equivalent, it follows that their Laplacians have the same spectrum.
 \end{thm}
 \begin{proof}
 //TODO
 \end{proof}
 
+The converse doesn't hold. For example, //TODO
 
 \section{The Eigenvalue 0 of the Laplacian}
 
@@ -442,75 +444,41 @@ x_i &= \frac{1}{d_i} \sum_{l \sim i} \sigma_{il}x_l && \text{(by \cref{entries o
 so $x_i$ differs from $\sigma_{ij}x_j$ by a positive real factor, as desired.
 \end{proof}
 
-\begin{corollary}
+\begin{corollary}\label{null space of simple graph Laplacian}
 Let $G$ be a simple graph on $n$ vertices with Laplacian $L$. Suppose $x \in \C^n$ with $x = (x_1, \dots, x_n)$. Then $Lx = 0$ if and only if $$x_i = x_j$$ whenever $i \sim j$.
 \end{corollary}
 \begin{proof}
 This follows from \cref{characterization of null space of Laplacian} and the fact that every signature in a simple graph is 1.
 \end{proof}
 
+In a way, \cref{characterization of null space of Laplacian} completely answers the question of when 0 is an eigenvalue of the Laplacian. 0 is an eigenvalue exactly when there is a nonzero vector $x$ satisfying the condition in \cref{characterization of null space of Laplacian}. But that condition is phrased in terms of local properties of the graph. We want to find global properties that determine whether 0 is an eigenvalue, and if so, reveal its multiplicity. The final few results of the section achieve that.
+
+\begin{prop}\label{multiplicity of 0 for connected balanced graph}
+If $G$ is a connected and balanced magnetic graph, then 0 is an eigenvalue of its Laplacian with multiplicity 1. 
+\end{prop}
+\begin{proof}
+Since $G$ is balanced, \cref{balanced iff switching equivalent to simple graph} gives that it is switching equivalent to the simple graph on the same edges and vertices. By \cref{switching preserves spectrum}, the spectrum of that simple graph is the same as the spectrum of $G$. So we only have to show that 0 is an eigenvalue with multiplicity 1 for the Laplacian of a connected, simple graph. Indeed, it is clear from \cref{null space of simple graph Laplacian} that the kernel of such a Laplacian is exactly the one-dimensional space of vectors whose entries are all the same.   
+\end{proof}
+
+\begin{prop}\label{multiplicity of 0 for connected unbalanced graph}
+If $G$ is a connected and unbalanced magnetic graph, then 0 is not an eigenvalue of its Laplacian. 
+\end{prop}
+\begin{proof}
+Let $n$ be the number of vertices in $G$, and let $x = (x_1, \dots, x_n) \in \ker L$. We will be done if we can show that $x$ must be $0$. Since $G$ is unbalanced, it has a closed walk along which the signatures multiply to some $c \neq 1$. Let $k$ be the starting and ending vertex of the walk. Repeated application of \cref{characterization of null space of Laplacian} along that walk gives that $x_k = c x_k$, so $x_k = 0$. Then applying \cref{characterization of null space of Laplacian} outward from $k$, we get $x_j = 0$ for every $j \in \set*{1, \dots, n}$. This means $x = 0$, as desired.
+\end{proof}
+
 \begin{thm}
-Let $G$ be a magnetic graph with Laplacian $L$. Then the nullity of $L$ is equal to the number of consistent connected components of $G$.
+Let $G$ be a magnetic graph with Laplacian $L$. Then the multiplicity of 0 as an eigenvalue of $L$ is equal to the number of balanced connected components of $G$.
 \end{thm}
 \begin{proof}
-Let $n$ be the number of vertices in $G$, and let 
-$$C_1=(E_1, V_1), \dots, C_k=(E_k, V_k)$$
-be the consistent connected components of $V$, where $k$ may be 0. Our goal is to construct a basis for the null space of $L$ consisting of $k$ vectors in $\C^n$. We begin by choosing vertices 
-$$u_1 \in V_1, \dots, u_k \in V_k.$$
-Then, we construct our basis vectors $w_1, \dots, w_k \in \C^n$ as follows. For each $i \in \set*{1, \dots k}$, define the $j$th entry of $w_i$ to be
-$$
-(w_i)_j = 
-\begin{cases}
-\text{sigdist}(j, u_i) &\mbox{ if } j \in V_i \\
-0 &\mbox{ otherwise}
-\end{cases}.
-$$ 
-It remains to argue that $w_1, \dots, w_k$ is indeed a basis for null $L$. Start by observing that for each $i \in \set*{1, \dots k}$, $w_i$ is the only basis vector which is nonzero at the indices in $V_i$. This proves linear independence. 
-
-To show that span $(w_1, \dots, w_k) \subseteq$ null $L$, it suffices to show each $w_i \in$ null $L$. We will use the equivalent condition given in \cref{characterization of null space of Laplacian}. That is, we will show that for any vertices $a \sim b$, 
-$$(w_i)_a = \sigma_{ab}(w_i)_b.$$
-If the connected component containing $a$ and $b$ is \underline{not} $C_i$, then $(w_i)_a = (w_i)_b = 0$, so the desired equality holds. On the other hand, suppose the connected component containing $a$ and $b$ is $C_i$. Then
-\begin{align*}
-(w_i)_a
-&= \text{sigdist}(a, u_i) \\
-&= \sigma_{ab} \text{sigdist}(b, u_i) \\
-&= \sigma_{ab} (w_i)_b.
-\end{align*}
-
-Finally we will prove that null $L \subseteq$ span $(w_1, \dots, w_k)$. Let $x \in$ null $L$. We claim 
-\begin{equation}\label{eqn:goal}
-x = x_{u_1} w_1 + \dots + x_{u_k} w_k, \tag{$\star$}
-\end{equation}
-which we will prove for each index in the vector. To that end, let $j$ be an index in $\set*{1, \dots, n}$.
-
-\begin{case}
-As a vertex, $j$ belongs to an inconsistent connected component. Call it $I$. Then the RHS of \eqref{eqn:goal} is 0 at index $j$, so we must show $x_j = 0$ too. Since $I$ is inconsistent, it has a closed walk along which the signatures multiply to some $c \neq 1$. Let $z$ be the starting and ending vertex of the walk. Repeated application of \cref{characterization of null space of Laplacian} along that walk gives that $x_z = c x_z$, so $x_z = 0$. Then applying \cref{characterization of null space of Laplacian} along a path from $z$ to $j$, we get $x_j = 0$, as desired. So \eqref{eqn:goal} holds at index $j$.  
-\end{case}
-\begin{case}
-As a vertex, $j$ belongs to a consistent connected component. Say, $C_\alpha$ where $\alpha \in \set*{1, \dots, k}$. Then 
-\begin{align*}
-x_j &= x_{u_\alpha} \text{sigdist}(j, u_\alpha) && \text{(repeatedly applying \cref{characterization of null space of Laplacian})} \\
-&= x_{u_\alpha} (w_\alpha)_j \\
-&= x_{u_1} (w_1)_j + \dots + x_{u_k} (w_k)_j && \text{(introducing 0 terms)} \\
-&= (x_{u_1} w_1 + \dots + x_{u_k} w_k)_j.
-\end{align*}
-So in this case as well, \eqref{eqn:goal} holds at index $j$.
-\end{case}
-
+By \cref{spectrum is sum of spectra of connected components}, it suffices to sum the multiplicities of 0 as an eigenvalue for $G$'s connected components. By \cref{multiplicity of 0 for connected balanced graph}, the balanced components each contribute 1 multiplicity, and by \cref{multiplicity of 0 for connected unbalanced graph}, the unbalanced components each contribute 0 multiplicity. Therefore, the total multiplicity is the number of balanced components.
 \end{proof}
 
 \begin{corollary}
-The Laplacian of a simple graph always has 0 as an eigenvalue.
+The Laplacian of a simple graph always has 0 as an eigenvalue, and its multiplicity is equal to the number of connected components in the graph.
 \end{corollary}
 \begin{proof}
-A simple graph is consistent because all its signatures are 1. Thus it has at least one consistent connected component, so the nullity of the Laplacian is at least 1.
-\end{proof}
-
-\begin{corollary}
-The Laplacian of an acyclic magnetic graph always has 0 as an eigenvalue.
-\end{corollary}
-\begin{proof}
-An acyclic graph is consistent because it vacuously satisfies condition 2 of \cref{equivalent conditions for consistency}. Thus it has at least one consistent connected component, so the nullity of the Laplacian is at least 1.
+A simple graph is balanced because all its signatures are 1. Thus all its connected components are balanced. Since the multiplicity of 0 is equal to the number of balanced components, in this case it is just equal to the total number of components.
 \end{proof}
 
 \end{document}
