@@ -161,7 +161,7 @@ But $v$ is nonzero, so $v \cdot v \geq 0$ by the definition of inner product. Th
 
 \section{Renumbering Vertices}
 
-The Laplacian of a magnetic graph is only defined when the graph's vertices are numbered $1, \dots, n$, and changing the numbering changes the Laplacian. However, we will show in this section that changing the vertex numbering has no effect on the spectrum of the Laplacian. This will allow us to refer to the ``spectrum of the Laplacian" of any magnetic graph, even if its vertices are not numbered or we don't know how they're numbered. With that goal in mind, we will first need a few facts about similar matrices.
+The Laplacian of a magnetic graph is only defined when the graph's vertices are numbered $1, \dots, n$, and changing the numbering changes the Laplacian. However, we will show in this section that changing the vertex numbering has no effect on the spectrum of the Laplacian. This will allow us to unambiguously refer to the ``spectrum of the Laplacian" of any magnetic graph, even if its vertices are not numbered or we don't know how they're numbered. With that goal in mind, we will first need a few facts about similar matrices.
 
 \begin{prop}\label{similar matrices have same nullity}
 Suppose $A$ and $B$ are similar $n \times n$ matrices over $\C$. Then $A$ and $B$ have the same nullity.
@@ -188,7 +188,7 @@ P^{-1}AP v = B v = 0 \\
 \end{align*} 
 \end{proof}
 
-\begin{prop}
+\begin{prop}\label{similar matrices have same spectrum}
 Suppose $A$ and $B$ are similar $n \times n$ matrices over $\C$. Then $A$ and $B$ have the same eigenvalues, counting multiplicity.
 \end{prop}
 \begin{proof}
@@ -310,7 +310,7 @@ for all $u \in V$. Then for every pair of adjacent vertices $v, w \in V$, we hav
 as desired.
 \end{proof}
 
-\begin{thm}
+\begin{thm}\label{closed walk characterization of switching equivalence}
 Let $G^\sigma = (V, E, \sigma)$ and $G^\tau = (V, E, \tau)$ be two magnetic graphs with the same vertices and edges. Then $G^\sigma$ and $G^\tau$ are switching equivalent if and only if along every closed walk, the product of the signatures of $G^\sigma$ equals the product of the signatures of $G^\tau$.
 \end{thm}
 \begin{proof}
@@ -363,10 +363,15 @@ The next theorem is why we care about switching equivalence in the context of sp
 Let $G^\sigma = (V, E, \sigma)$ and $G^\tau = (V, E, \tau)$ be magnetic graphs with the same vertices and edges. Then if $G^\sigma$ and $G^\tau$ are switching equivalent, it follows that their Laplacians have the same spectrum.
 \end{thm}
 \begin{proof}
-//TODO
+Let $n$ be the number of vertices in $V$. Let $L^\sigma$ and $L^\tau$ be the Laplacians for $G^\sigma$ and $G^\tau$. Let $c$ be a switching function that takes $G^\sigma$ to $G^\tau$. Then, 
+\begin{align*}
+L^\tau &= \text{diag}(\overline{c_1}, \dots, \overline{c_n})\left(L^\sigma\right) \text{diag}(c_1, \dots, c_n) \\
+&= \text{diag}(c_1, \dots, c_n)^{-1} \left(L^\sigma\right) \text{diag}(c_1, \dots, c_n).
+\end{align*}
+We see that $L^\sigma$ and $L^\tau$ are similar matrices. Therefore, by \cref{similar matrices have same spectrum}, they have the same spectrum.
 \end{proof}
 
-The converse doesn't hold. For example, //TODO
+The converse of \cref{switching preserves spectrum} doesn't hold. For example, the 3-cycle graph with signatures 1, 1, and $i$ (going in order around the cycle) has the same spectrum as the 3-cycle graph with signatures 1, 1, and $-i$. However, the product along the cycles is different, so by \cref{closed walk characterization of switching equivalence}, the graphs cannot be switching equivalent. 
 
 \section{The Eigenvalue 0 of the Laplacian}
 
