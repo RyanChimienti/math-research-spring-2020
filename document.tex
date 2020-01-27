@@ -50,7 +50,7 @@
 
 \begin{document}
 
-\section*{The Magnetic Laplacian and its Spectrum}
+\section{The Magnetic Laplacian and its Spectrum}
 
 \begin{defn}
 A \textit{simple graph} is a set of vertices $V$ and a set of oriented edges $E \subseteq V \times V$, where for all $(v, w) \in E$, we have $v \neq w$ and $(w, v) \in E$.
@@ -159,7 +159,7 @@ Let $\lambda$ be an eigenvalue of $L$, and let $v \in \C^n$ be a nonzero eigenve
 But $v$ is nonzero, so $v \cdot v \geq 0$ by the definition of inner product. Thus we may conclude that $\lambda \geq 0$.
 \end{proof}
 
-\section*{Renumbering Vertices}
+\section{Renumbering Vertices}
 
 The Laplacian of a magnetic graph is only defined when the graph's vertices are numbered $1, \dots, n$, and changing the numbering changes the Laplacian. However, we will show in this section that changing the vertex numbering has no effect on the spectrum of the Laplacian. This will allow us to refer to the ``spectrum of the Laplacian" of any magnetic graph, even if its vertices are not numbered or we don't know how they're numbered. With that goal in mind, we will first need a few facts about similar matrices.
 
@@ -234,11 +234,139 @@ Let $G$ be a magnetic graph with Laplacian $L$, and let $G_1, \dots G_k$ be the 
 //TODO
 \end{proof}
 
-\section*{Switching Equivalence}
+\section{Balanced Magnetic Graphs}
+
+\begin{defn}
+A magnetic graph is called \textit{balanced} if the signatures along any closed walk multiply to 1.
+\end{defn}
+
+\begin{prop}\label{equivalent conditions for balancedness}
+Let $G=(E, V, \sigma)$ be a magnetic graph. Then the following are equivalent.
+\begin{enumerate}
+\item G is balanced.
+\item The signatures along any cycle multiply to 1 (in either direction).
+\item For every pair of connected vertices $u, v \in V$, there exists $z \in \C_{\abs*{z}=1}$ such that along every walk from $u$ to $v$, the signatures multiply to $z$. 
+\end{enumerate}
+\end{prop}
+
+Because the number $z$ in condition 3 is clearly unique for each pair of connected vertices, we can make the following definition.
+
+\begin{defn}
+Let $G=(E,V, \sigma)$ be a balanced magnetic graph, and let $u, v \in V$ be connected. Then the \textit{signature distance} from $u$ to $v$, written sigdist$(u, v)$, is the product of the signatures along every walk from $u$ to $v$.
+\end{defn}
+
+\section{Switching Equivalence}
+
+\begin{defn}
+If $G=(V, E, \sigma)$ is a magnetic graph, then a function $c: V \rightarrow \C_{\abs*{z}=1}$ is called a \textit{switching function} for $G$. We may write $c_v$ as shorthand for $c(v)$.
+\end{defn}
+
+\begin{defn}
+Let $G = (V, E, \sigma)$ be a magnetic graph, and let $c$ be a switching function for $G$. Then $c$ \textit{applied to $G$} is the magnetic graph with the same edges and vertices, whose signature function $\tau$ is given by
+$$\tau_{vw} = \overline{c_v}\sigma_{vw}c_w$$
+for all $v \sim w$.
+\end{defn}
+
+\begin{defn}
+A magnetic graph $G$ is \textit{switching equivalent} to a magnetic graph $H$ if there exists a switching function $c$ for $G$ such that $c$ applied to $G$ gives $H$.   
+\end{defn}
+
+\begin{prop}
+Switching equivalence is an equivalence relation.
+\end{prop}
+
+\begin{prop}\label{switching equivalence of connected components}
+Let $G^\sigma = (V, E, \sigma)$ and $G^\tau = (V, E, \tau)$ be two magnetic graphs with the same vertices and edges. Then $G^\sigma$ and $G^\tau$ are switching equivalent if and only if each connected component of $G^\sigma$ is switching equivalent to the corresponding connected component of $G^\tau$.
+\end{prop}
+
+\begin{proof}
+$(\rightarrow)$ Suppose $G^\sigma$ and $G^\tau$ are switching equivalent. Then there is a switching function $c$ for $G^\sigma$ that, when applied to $G^\sigma$, gives $G^\tau$. Now let $C^\sigma=(U, D, \sigma|_{D})$ be an arbitrary connected component of $G^\sigma$. Then $C^\tau=(U, D, \tau|_{D})$ is the corresponding connected component of $G^\tau$. Choose $b$ to be the restriction of $c$ to $U$, and note that $b$ is a switching function for $C^\sigma$. It remains to show that $b$ applied to $C^\sigma$ gives $C^\tau$. Indeed, for any adjacent vertices $v, w \in U$, the signature of $(v, w)$ given by $b$ applied to $C^\sigma$ is
+$$
+\overline{b_v} (\sigma|_D)_{vw} b_w 
+= \overline{c_v} \sigma_{vw} c_w
+= \tau_{vw}
+= (\tau|_{D})_{vw},
+$$
+which is the signature of $(v, w)$ in $C^\tau$.
+
+$(\leftarrow)$ Suppose each connected component of $G^\sigma$ is switching equivalent to the corresponding connected component of $G^\tau$. Call the connected components $C_1, \dots, C_k.$ Then, for each $i \in \set*{1, \dots, k}$, let $b^i$ be the switching function that takes the $i$th connected component of $G^\sigma$ to the $i$th connected component of $G^\tau$. Define a switching function $c$ for $G^\sigma$ by $c_v = (b^i)_v$, where $i$ is such that $v$ belongs to $C_i$. It is easy to verify that $c$ applied to $G^\sigma$ gives $G^\tau$.
+\end{proof}
+
+We now work towards another characterization of switching equivalence. We want to show that two magnetic graphs with the same vertices and edges are switching equivalent if and only if the product of the signatures along any closed walk is the same for the two graphs. To make this easier, we will start with a lemma.
+
+\begin{lem}\label{balanced implies switching equivalent to simple graph}
+If $G=(V, E, \sigma)$ is a balanced magnetic graph, then $G$ is switching equivalent to the simple graph on $(V, E)$.
+\end{lem}
+\begin{proof}
+Because of \cref{switching equivalence of connected components} and the fact that connected components of a balanced graph are also balanced, it suffices to prove the lemma in the case where $V$ is connected. So assume $V$ is connected. We must construct a switching function that takes every signature in $G$ to 1. To do this, fix a vertex $u_0 \in V$ and define the switching function $c: V \rightarrow \C_{|z|=1}$ by 
+$$c_u = \overline{\text{sigdist} (u_0, u)}$$
+for all $u \in V$. Then for every pair of adjacent vertices $v, w \in V$, we have
+\begin{align*}
+\overline{c_v} \sigma_{vw} c_w
+&= \text{sigdist} (u_0, v) \sigma_{vw} \overline{\text{sigdist} (u_0, w)} \\
+&= \text{sigdist} (u_0, w) \overline{\text{sigdist} (u_0, w)} \\
+&= 1,
+\end{align*}
+as desired.
+\end{proof}
+
+\begin{thm}
+Let $G^\sigma = (V, E, \sigma)$ and $G^\tau = (V, E, \tau)$ be two magnetic graphs with the same vertices and edges. Then $G^\sigma$ and $G^\tau$ are switching equivalent if and only if along every closed walk, the product of the signatures of $G^\sigma$ equals the product of the signatures of $G^\tau$.
+\end{thm}
+\begin{proof}
+$(\rightarrow)$ Suppose $G^\sigma$ and $G^\tau$ are switching equivalent. Then there is a switching function $c: V \rightarrow \C_{\abs*z = 1}$ that takes $G^\sigma$ to $G^\tau$. Let $v_1, \dots, v_k$ be the vertices along a closed walk, so that $v_1 = v_k$. Then,
+\begin{align*}
+\sigma_{v_1 v_2} \sigma_{v_2 v_3} \dots \sigma_{v_{k-1} v_k}
+&= \overline{c_{v_1}} \sigma_{v_1 v_2} \sigma_{v_2 v_3} \dots \sigma_{v_{k-1} v_k} c_{v_1} \\
+&= \overline{c_{v_1}} \sigma_{v_1 v_2} \sigma_{v_2 v_3} \dots \sigma_{v_{k-1} v_k} c_{v_k} \\
+&= (\overline{c_{v_1}} \sigma_{v_1 v_2} c_{v_2}) (\overline{c_{v_2}} \sigma_{v_2 v_3} c_{v_3}) \dots (\overline{c_{v_{k-1}}} \sigma_{v_{k-1} v_k} c_{v_k}) \\
+&= \tau_{v_1 v_2} \tau_{v_2 v_3} \dots \tau_{v_{k-1} v_k}.
+\end{align*} 
+Therefore, along every closed walk, the product of the signatures of $G^\sigma$ equals the product of the signatures of $G^\tau$.
+
+$(\leftarrow)$ Suppose that along every closed walk, the product of the signatures of $G^\sigma$ equals the product of the signatures of $G^\tau$. Define a new graph $G^s = (V, E, s)$, where the signatures $s$ are given by $s_{vw} = \overline{\tau_{vw}} \sigma_{vw}$ for all vertices $v \sim w$. It is easy to see that along any closed walk, the signatures of $G^s$ multiply to 1. Therefore, $G^s$ is balanced. By \cref{balanced implies switching equivalent to simple graph}, it follows that $G^s$ is switching equivalent to the simple graph on $(V, E)$, whose signatures are all 1. Call the switching function that takes $G^s$ to the simple graph $c$. Then for any vertices $v \sim w$, we have
+\begin{align*}
+\overline{c_v} s_{vw} c_w = 1
+&\rightarrow \overline{c_v} \left(\overline{\tau_{vw}} \sigma_{vw}\right) c_w = 1 \\
+&\rightarrow \overline{c_v} \sigma_{vw} c_w = \tau_{vw}.
+\end{align*}
+Therefore, applying the switching function $c$ to $G^\sigma$ gives $G^\tau$, so $G^\sigma$ and $G^\tau$ are switching equivalent.
+\end{proof}
+
+Many nice consequences flow from this characterization of switching equivalence. 
+
+\begin{corollary}
+A magnetic graph is balanced if and only if it is switching equivalent to the simple graph with the same vertices and edges.
+\end{corollary}
+
+\begin{corollary}
+If a magnetic graph is switching equivalent to a balanced magnetic graph, then it is also balanced.  
+\end{corollary}
+
+\begin{corollary}
+Any two balanced magnetic graphs with the same vertices and edges are switching equivalent. 
+\end{corollary}
+
+\begin{corollary}
+Every acyclic magnetic graph is switching equivalent to the simple graph.
+\end{corollary}
+
+\begin{corollary}
+Every magnetic cycle graph is switching equivalent to a graph which differs from the simple graph by at most one edge. 
+\end{corollary}
 
 
+The next theorem is why we care about switching equivalence in the context of spectral graph theory.
 
-\section*{The Eigenvalue 0 of the Laplacian}
+\begin{thm}
+Let $G^\sigma = (V, E, \sigma)$ and $G^\tau = (V, E, \tau)$ be magnetic graphs with the same vertices and edges. Then if $G^\sigma$ and $G^\tau$ are switching equivalent, it follows that their Laplacians have the same spectrum.
+\end{thm}
+\begin{proof}
+//TODO
+\end{proof}
+
+
+\section{The Eigenvalue 0 of the Laplacian}
 
 If $G$ is a magnetic graph with vertices $\set*{1, \dots, n}$ and $x$ is a vector in $\C^n$, then it makes sense to imagine $x$ as consisting of values for the vertices of $G$. Specifically, the entry $x_i$ is like a value for the vertex $i$. With this interpretation, multiplying $x$ by the Laplacian of $G$ creates a new list of vertex values by taking linear combinations of the current vertex values. The weights of the combinations are determined by the structure of the Laplacian. In fact, the next proposition shows that a vertex's new value after the multiplication depends only on its current value and the values of its neighbors.   
 
@@ -320,29 +448,6 @@ Let $G$ be a simple graph on $n$ vertices with Laplacian $L$. Suppose $x \in \C^
 \begin{proof}
 This follows from \cref{characterization of null space of Laplacian} and the fact that every signature in a simple graph is 1.
 \end{proof}
-
-For what magnetic graphs does the Laplacian have 0 as an eigenvalue? And when 0 is an eigenvalue, what is its multiplicity? In other words, we want to know how a magnetic graph is related to the nullity of its Laplacian. The following definition will help to answer this question.
-
-\begin{defn}
-A magnetic graph is called \textit{consistent} if the signatures along any closed walk multiply to 1.
-\end{defn}
-
-\begin{prop}\label{equivalent conditions for consistency}
-Let $G=(E, V)$ be a magnetic graph. Then the following are equivalent.
-\begin{enumerate}
-\item G is consistent.
-\item The signatures along any cycle multiply to 1 (in either direction).
-\item For every pair of connected vertices $u, v \in V$, there exists $z \in \C_{\abs*{z}=1}$ such that along every walk from $u$ to $v$, the signatures multiply to $z$. 
-\end{enumerate}
-\end{prop}
-
-Condition 3 was the reason for the name ``consistent." Because the number $z$ in that condition is clearly unique for each pair of connected vertices, we can make the following definition.
-
-\begin{defn}
-Let $G=(E,V)$ be a consistent magnetic graph, and let $u, v \in V$. Then the \textit{signature distance} from $u$ to $v$, written sigdist$(u, v)$, is the product of the signatures along every walk from $u$ to $v$ (or $\infty$ if $u$ and $v$ are disconnected).
-\end{defn}
-
-Now we can achieve our goal of relating a magnetic graph to the nullity of its Laplacian.
 
 \begin{thm}
 Let $G$ be a magnetic graph with Laplacian $L$. Then the nullity of $L$ is equal to the number of consistent connected components of $G$.
