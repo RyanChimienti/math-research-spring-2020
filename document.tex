@@ -532,4 +532,79 @@ The Laplacian of a simple graph always has 0 as an eigenvalue, and its multiplic
 A simple graph is balanced because all its signatures are 1. Thus all its connected components are balanced. Since the multiplicity of 0 is equal to the number of balanced components, in this case it is just equal to the total number of components.
 \end{proof}
 
+
+
+\section{The Frustration Index}
+The frustration index of a magnetic graph is a way to measure how close the graph is to being balanced.
+
+\begin{defn}
+Let $G = (V, E, \sigma)$ be a magnetic graph. Then the frustration index of $G$ is 
+$$
+\min_{c: V \rightarrow \C_{\abs*z = 1}}
+\sum_{i \sim j} 
+\abs*{\overline{c_i} \sigma_{ij} c_j - 1}.
+$$
+\end{defn}
+
+Note that a balanced graph has frustration index 0 (since it is switching equivalent to a graph whose signatures are all 1). Cycle graphs also have a nice frustration index, as we will show next. For this we need a lemma.
+
+\begin{lem}\label{lemma for cycle frustration}
+If $z_1, \dots, z_n \in \C_{\abs*z = 1}$, then
+$$
+\abs*{z_1 z_2 \dots z_n - 1} \leq \abs*{z_1 - 1} + \dots + \abs*{z_n - 1}.
+$$
+\end{lem}
+\begin{proof}
+We use induction on $n$. The claim is clearly true in the base case $n = 1$. Now let $k \in \N$, and assume the claim holds for some $n = k$. Then,
+\begin{align*}
+\abs*{z_1 z_2 \dots z_{k+1} - 1}
+&= \abs*{z_1 z_2 \dots z_{k+1} - z_{k+1} + z_{k+1} - 1} \\
+&\leq \abs*{z_1 z_2 \dots z_{k+1} - z_{k+1}} + \abs*{z_{k+1} - 1}\\
+&= \abs*{z_{k+1}(z_1 z_2 \dots z_{k} - 1)} + \abs*{z_{k+1} - 1} \\
+&= \abs*{z_{k+1}} \abs*{z_1 z_2 \dots z_{k} - 1} + \abs*{z_{k+1} - 1} \\
+&= \abs*{z_1 z_2 \dots z_{k} - 1} + \abs*{z_{k+1} - 1} \\
+&\leq \abs*{z_1 - 1} + \dots + \abs*{z_k - 1} + \abs*{z_{k+1} - 1}.
+\end{align*}
+So the claim also holds for $n = k + 1$, and we are done.
+\end{proof}
+
+\begin{prop}
+Let $G = (V, E, \sigma)$ be a cycle graph on the vertices $\set*{1, \dots, n}$. Let $p$ be the product of the signatures along the cycle in one direction. Then the frustration index of $G$ is $2 \abs*{p - 1}$.
+\end{prop}
+\begin{proof}
+Without loss of generality, let 
+$$p=\sigma_{12}\sigma_{23} \dots \sigma_{n1}.$$
+By \cref{closed walk characterization of switching equivalence}, $G$ is switching equivalent to the graph with signatures $\tau$, where 
+\begin{align*}
+\tau_{12} &= \tau_{23} = \dots = \tau_{(n-1)n} = 1, \text{ and} \\
+\tau_{n1} &= p.
+\end{align*}
+Let $b$ be a switching function which takes $G$'s signatures to $\tau$. Then,
+\begin{align*}
+\sum_{i \sim j} \abs*{\overline{b_i} \sigma_{ij} b_j - 1} 
+&= \sum_{i \sim j} \abs*{\tau_{ij} - 1} \\
+&= \abs*{\tau_{n1} - 1} + \abs*{\tau_{1n} - 1} && \text{(eliminating 0 terms)} \\
+&= \abs*{p - 1} + \abs*{\overline{p} - 1} \\
+&= \abs*{p - 1} + \abs*{p - 1} \\
+&= 2 \abs*{p - 1}.
+\end{align*}
+So we have shown that there exists a switching function $b$ for $G$ with 
+$$
+\sum_{i \sim j} \abs*{\overline{b_i} \sigma_{ij} b_j - 1} = 2 \abs*{p - 1}.
+$$ 
+To finish the proof, we must show that whenever $c$ is a switching function for $G$, we have
+$$
+\sum_{i \sim j} \abs*{\overline{c_i} \sigma_{ij} c_j - 1} \geq 2 \abs*{p - 1}.
+$$
+To see this, let $c$ be an arbitrary switching function for $G$, and let $s$ be the new signatures obtained by applying $c$ to $G$. Then,
+\begin{align*}
+\sum_{i \sim j} \abs*{\overline{c_i} \sigma_{ij} c_j - 1}
+&= \sum_{i \sim j} \abs*{s_{ij} - 1} \\
+&= 2 \left( \abs*{s_{12} - 1} + \abs*{s_{23} - 1} + \dots + \abs*{s_{n1} - 1} \right) \\
+&\geq 2 \abs*{s_{12} s_{23} \dots s_{n1} - 1} && \text{(\cref{lemma for cycle frustration})} \\
+&= 2 \abs*{\sigma_{12} \sigma_{23} \dots \sigma_{n1} - 1} && \text{(switching preserves products along cycles)} \\
+&= 2 \abs*{p-1}.
+\end{align*}
+\end{proof}
+
 \end{document}
