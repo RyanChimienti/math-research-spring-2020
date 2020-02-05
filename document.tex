@@ -345,12 +345,12 @@ If $G=(V, E, \sigma)$ is a balanced magnetic graph, then $G$ is switching equiva
 \end{lem}
 \begin{proof}
 Because of \cref{switching equivalence of connected components} and the fact that connected components of a balanced graph are also balanced, it suffices to prove the lemma in the case where $V$ is connected. So assume $V$ is connected. We must construct a switching function that takes every signature in $G$ to 1. To do this, fix a vertex $u_0 \in V$ and define the switching function $c: V \rightarrow \C_{|z|=1}$ by 
-$$c_u = \overline{\text{sigdist} (u_0, u)}$$
+$$c_u = \text{sigdist} (u, u_0)$$
 for all $u \in V$. Then for every pair of adjacent vertices $v, w \in V$, we have
 \begin{align*}
 \overline{c_v} \sigma_{vw} c_w
-&= \text{sigdist} (u_0, v) \sigma_{vw} \overline{\text{sigdist} (u_0, w)} \\
-&= \text{sigdist} (u_0, w) \overline{\text{sigdist} (u_0, w)} \\
+&= \overline{\text{sigdist} (v, u_0)} \sigma_{vw} \text{sigdist} (w, u_0) \\
+&= \overline{\text{sigdist} (v, u_0)} \text{sigdist} (v, u_0) \\
 &= 1,
 \end{align*}
 as desired.
