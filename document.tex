@@ -434,8 +434,8 @@ Let $l_{ij}$ denote the element of $L$ at row $i$ and column $j$. Let $i \in \se
 \begin{align*}
 (Lx)_i &= \sum_{j=1}^n l_{ij}x_j \\
 &= l_{ii}x_i + \sum_{j \neq i} l_{ij}x_j \\
-&= d_i x_i + \sum_{j \neq i} (-\sigma_{ij})x_j \\
-&= d_i x_i - \sum_{j \neq i} \sigma_{ij}x_j.
+&= d_i x_i + \sum_{j \sim i} (-\sigma_{ij})x_j \\
+&= d_i x_i - \sum_{j \sim i} \sigma_{ij}x_j.
 \end{align*}
 \end{proof}
 
