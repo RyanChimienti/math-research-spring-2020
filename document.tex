@@ -518,7 +518,7 @@ If $G$ is a connected and unbalanced magnetic graph, then 0 is not an eigenvalue
 Let $n$ be the number of vertices in $G$, and let $x = (x_1, \dots, x_n) \in \ker L$. We will be done if we can show that $x$ must be $0$. Since $G$ is unbalanced, it has a closed walk along which the signatures multiply to some $c \neq 1$. Let $k$ be the starting and ending vertex of the walk. Repeated application of \cref{characterization of null space of Laplacian} along that walk gives that $x_k = c x_k$, so $x_k = 0$. Then applying \cref{characterization of null space of Laplacian} outward from $k$, we get $x_j = 0$ for every $j \in \set*{1, \dots, n}$. This means $x = 0$, as desired.
 \end{proof}
 
-\begin{thm}
+\begin{thm}\label{nullity of Laplacian}
 Let $G$ be a magnetic graph with Laplacian $L$. Then the multiplicity of 0 as an eigenvalue of $L$ is equal to the number of balanced connected components of $G$.
 \end{thm}
 \begin{proof}
@@ -802,6 +802,56 @@ $$
            \omega_{1}
          \end{bmatrix}... TODO
 $$
+\end{proof}
+
+\section{Magnetic PageRank}
+
+\begin{defn}
+Let $G=(V, E, \sigma)$ be a magnetic graph. Then $G$'s \textit{PageRank matrix} is the matrix $W$ given by
+$$
+W_{ij} = 
+\begin{cases}
+\frac{\sigma_{ji}}{d_j} &\text{ if } i \sim j \\
+0 &\text{ if } i \not\sim j
+\end{cases}
+$$
+for all $i, j \in V$.
+\end{defn}
+
+In the case where $G$ is simple, this definition aligns with the classical definition for the PageRank matrix. 
+
+It may feel more natural to write $\sigma_{ij}$ in our definition rather than $\sigma_{ji}$, and this wouldn't cause significant problems, but our choice better captures the meaning of the PageRank matrix. Given a vector $v \in \C^n$ which represents PageRank values for each vertex, performing the multiplication $W v$ should cause the vertices to distribute their PageRank evenly among their neighbors. However, since we are dealing with magnetic graphs, some rotation should be gained each time PageRank is transferred along a magnetized edge. If we want that gained rotation to be the signature of the edge \textbf{in the direction of the transfer}, then we must use $\sigma_{ji}$ in our definition, and not $\sigma_{ij}$. Our choice is further justified by \cref{Laplacian Eigenvectors vs PageRank Eigenvectors}, which would pick up an extra transpose (on $L$) if we had used the other definition.
+
+For a simple graph with PageRank matrix $W$, the PageRank vector is defined to be a nonzero vector $x$ satisfying $Wx = x$. Unfortunately, we will have to use a different definition for arbitrary magnetic graphs, since such a vector usually doesn't exist, as the next two facts show.
+
+\begin{prop}\label{Laplacian Eigenvectors vs PageRank Eigenvectors}
+Let $G$ be a magnetic graph on $n$ vertices, with PageRank matrix $W$ and Laplacian $L$. Let $x \in \C^n$. Then $W^T x = x$ if and only if $L x = 0$.
+\end{prop}
+\begin{proof}
+Let $A$ and $D$ be the adjacency matrix and degree matrix of $G$, respectively.  Then $W = A^T D^{-1}$ and $L = D - A$. So it follows that
+\begin{align*}
+W^T x = x &\iff (A^T D^{-1})^T x = x \\
+&\iff D^{-1} A x = x \\
+&\iff A x = D x \\
+&\iff (D - A) x = 0 \\
+&\iff L x = 0.
+\end{align*}
+\end{proof}
+
+\begin{prop}
+Let $G$ be a magnetic graph on $n$ vertices with PageRank matrix $W$. Then there exists a nonzero vector $x \in C^n$ satisfying $W x = x$ if and only if $G$ has a balanced connected component.
+\end{prop}
+\begin{proof}
+Let $L$ be the Laplacian of $G$. Then we have
+\begin{alignat*}{3}
+&& &\text{There exists a nonzero vector } x \in C^n \text{ satisfying } W x = x \\
+&\iff\quad &&W \text{ has 1 as an eigenvalue} \\
+&\iff &&W^T \text{ has 1 as an eigenvalue} \\
+&\iff &&\text{There exists a nonzero vector } x \in C^n \text{ satisfying } W^T x = x \\
+&\iff &&\text{There exists a nonzero vector } x \in C^n \text{ satisfying } L x = 0 &\quad &\text{(by \cref{Laplacian Eigenvectors vs PageRank Eigenvectors})} \\
+&\iff &&L \text{ has 0 as an eigenvalue} \\
+&\iff &&\text{G has a balanced connected component} &&\text{(by \cref{nullity of Laplacian})}.
+\end{alignat*}
 \end{proof}
 
 \end{document}
