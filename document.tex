@@ -813,16 +813,69 @@ $$\norm{A} := \sup_{\substack{\norm{x} = 1}} \norm{A x}.$$
 We will write $\norm{A}_p$ for the operator norm induced by the $l_p$ vector norm.
 \end{defn}
 
+If we're working with some operator norm and then use an undefined vector norm, it can be assumed that the vector norm is the one that induces the operator norm. For example, in the next proposition the vector norm $\norm{\cdot}$ induces the operator norm $\norm{\cdot}$.
+
+\begin{prop}\label{operator norm of matrix-vector product}
+Let $A \in M_{n \times n}(\C)$, let $x \in \C^n$, and let $\norm{\cdot}$ be an operator norm. Then $$\norm*{Ax} \leq \norm*{A}\norm*{x}.$$
+\end{prop}
+\begin{proof}
+This is trivially true if $x = 0$. On the other hand, if $x \neq 0$ we have
+$$
+\norm*{Ax} 
+= \frac{1}{\norm{x}} \norm*{Ax} \norm*{x}
+= \norm*{A \frac{x}{\norm{x}}} \norm*{x}
+\leq \left( \sup_{\norm{v} = 1} \norm{A v} \right) \norm{x}
+= \norm{A} \norm{x}.
+$$
+\end{proof}
+
+\begin{prop}\label{operator norm of matrix power}
+Let $M \in M_{n \times n} \C$ and let $\norm{\cdot}$ be an operator norm. Then for any $k \in \N$, we have $$\norm*{M^k} \leq \norm*{M}^k.$$
+\end{prop}
+\begin{proof}
+If $x \in \C^n$ and $\norm{x} = 1$, then
+\begin{align*}
+\norm*{M^k x} &= \norm*{M\left( M^{k-1} x \right)} \\
+&\leq \norm*{M} \norm*{M^{k-1} x} && \text{(by \cref{operator norm of matrix-vector product})} \\
+&\leq \norm*{M}^2 \norm*{M^{k-2} x} \\
+&\quad\quad \vdots \\
+&\leq \norm*{M}^k \norm*{x} \\
+&= \norm*{M}^k.
+\end{align*}
+Therefore, $\norm*{M}^k$ is an upper bound for the set $\set*{\norm*{M^k x} : x \in \C^n \text{ and } \norm{x} = 1}$. But $\norm*{M^k}$ is by definition the least upper bound for that set, so $\norm*{M^k} \leq \norm*{M}^k$.
+\end{proof}
+
 \begin{thm}\label{inverse of I - M}
 Let $M \in M_{n \times n} \C$, and assume $\norm{M} < 1$ for some operator norm $\norm{\cdot}$. Then $I - M$ is invertible, and
 $$
-(I - M)^{-1} = \sum_{n=0}^\infty M^n.
+(I - M)^{-1} = \sum_{k=0}^\infty M^k.
 $$
 \end{thm}
 \begin{proof}
-TODO
+If we can show that $\sum_{k=0}^\infty M^k$ converges, then we will have 
+\begin{align*}
+(I - M) \left( \sum_{k=0}^\infty M^k \right) 
+&= \sum_{k=0}^\infty (I - M) M^k \\
+&= \sum_{k=0}^\infty M^k - M^{k+1} \\
+&= \sum_{k=0}^\infty M^k - \sum_{k=0}^\infty M^{k+1} \\
+&= \sum_{k=0}^\infty M^k - \sum_{k=1}^\infty M^{k} \\
+&= I,
+\end{align*}
+and similarly $$\left( \sum_{k=0}^\infty M^k \right) (I-M) = I.$$
+So it remains to show $\sum_{k=0}^\infty M^k$ converges. We will show that the sequence of partial sums is Cauchy. To that end, let $\epsilon > 0$ be given. Since $\norm{M} < 1$, we have that $\sum_{k=0}^\infty \norm{M}^k$ is Cauchy. Therefore, there exists $N \in \N$ such that whenever $m > j > N$ we have 
+$$
+\norm{M}^{j+1} + \norm{M}^{j+2} \dots + \norm{M}^{m} < \epsilon.
+$$
+So in fact, whenever $m > j > N$ we have 
+\begin{align*}
+\norm*{\sum_{k=0}^m M^k - \sum_{k=0}^j M^k}
+&= \norm*{M^{j+1} + M^{j+2} + \dots + M^{m}} \\
+&\leq \norm*{M^{j+1}} + \norm*{M^{j+2}} + \dots + \norm*{M^{m}} \\
+&\leq \norm{M}^{j+1} + \norm{M}^{j+2} + \dots + \norm{M}^{m} && \text{(by \cref{operator norm of matrix power})} \\
+&< \epsilon.
+\end{align*}
 \end{proof}
-
+ 
 \section{Magnetic PageRank}
 
 \begin{defn}\label{defn PageRank matrix}
@@ -851,8 +904,8 @@ Let $n$ be the number of rows/columns in $W$. It suffices to show that for any $
 &\leq \sum_{j=1}^n \norm*{x_j w_{\bullet j}}_1 \\
 &= \sum_{j=1}^n \left( \abs*{x_j} \norm*{w_{\bullet j}}_1 \right) \\
 &= \sum_{j=1}^n \left( \abs*{x_j} \sum_{i=1}^n \abs*{w_{i j}} \right) \\
-&= \sum_{j=1}^n \left( \abs*{x_j} \sum_{i \sim j} \abs*{\frac{\sigma_{ji}}{d_j}} \right)
-= \sum_{j=1}^n \left( \abs*{x_j} \frac{1}{d_j} \sum_{i \sim j} \abs*{\sigma_{ji}} \right) 
+&= \sum_{j=1}^n \left( \abs*{x_j} \sum_{i \sim j} \abs*{\frac{\sigma_{ji}}{d_j}} \right) \\
+&= \sum_{j=1}^n \left( \abs*{x_j} \frac{1}{d_j} \sum_{i \sim j} \abs*{\sigma_{ji}} \right) 
 = \sum_{j=1}^n \left( \abs*{x_j} \frac{1}{d_j} d_j \right) 
 = \sum_{j=1}^n \abs*{x_j} 
 = \norm*{x}_1 
@@ -894,7 +947,7 @@ Let $L$ be the Laplacian of $G$. Then,
 \cref{traditional PageRank vector exists iff graph has balanced connected component} dashes our hopes of borrowing the nonmagnetic definition of the PageRank vector. But it turns out we \textit{can} borrow the nonmagnetic definition of the ``personalized" PageRank vector. Our definition is based closely off the one from Chung and Zhao's paper.
 
 \begin{defn}
-Let $W$ be an $n \times n$ PageRank matrix. Then the \textit{personalized PageRank vector} with \textit{jumping constant} $\alpha \in (0, 1)$ and \textit{seed vector} $s \in \C^n$, written pr$(\alpha, s)$, is defined to be the unique $x \in \C^n$ satisfying
+Suppose we are given an $n \times n$ PageRank matrix $W$. Then the \textit{personalized PageRank vector} with \textit{jumping constant} $\alpha \in (0, 1)$ and \textit{seed vector} $s \in \C^n$, written pr$(\alpha, s)$, is defined to be the unique $x \in \C^n$ satisfying
 $$
 \alpha s + (1 - \alpha) W x = x.
 $$
@@ -908,7 +961,7 @@ So it suffices to show $(I - (1 - \alpha)W)$ is invertible. That is the same as 
 $$
 \norm{W}_1 \leq 1 \implies \norm{(1 - \alpha)W}_1 < 1.
 $$ 
-This is maybe the most straightforward way to see that our definition of the personalized PageRank vector is valid, but we can alternatively use \cref{inverse of I - M} to get that $(I - (1 - \alpha)W)$ is invertible and 
+This is maybe the most straightforward way to see that our definition of the personalized PageRank vector is valid, but we can alternatively cite \cref{inverse of I - M}, which says that $(I - (1 - \alpha)W)$ is invertible and 
 $$
 (I - (1 - \alpha)W)^{-1} = \sum_{k=0}^{\infty} ((1 - \alpha) W)^k = \sum_{k=0}^{\infty} (1 - \alpha)^k W^k.
 $$ This approach is nice because it lets us actually solve \cref{eq: PageRank rearranged} for the PageRank vector $x$. Multiplying both sides of \cref{eq: PageRank rearranged} by $(I - (1 - \alpha)W)^{-1}$ gives the following fact.
