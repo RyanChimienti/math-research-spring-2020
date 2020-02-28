@@ -805,6 +805,24 @@ $$
 $$
 \end{proof}
 
+\section{Operator Norms}
+
+\begin{defn}\label{defn operator norm}
+Let $A$ be an $n \times n$ matrix over $\C$, and let $\norm{\cdot}$ be a vector norm on $\C^n$. Then the \textit{operator norm of $A$ induced by $\norm{\cdot}$} is
+$$\norm{A} := \sup_{\substack{\norm{x} = 1}} \norm{A x}.$$
+We will write $\norm{A}_p$ for the operator norm induced by the $l_p$ vector norm.
+\end{defn}
+
+\begin{thm}\label{inverse of I - M}
+Let $M \in M_{n \times n} \C$, and assume $\norm{M} < 1$ for some operator norm $\norm{\cdot}$. Then $I - M$ is invertible, and
+$$
+(I - M)^{-1} = \sum_{n=0}^\infty M^n.
+$$
+\end{thm}
+\begin{proof}
+TODO
+\end{proof}
+
 \section{Magnetic PageRank}
 
 \begin{defn}\label{defn PageRank matrix}
@@ -822,12 +840,6 @@ for all $i, j \in V$.
 In the case where $G$ is simple, this definition aligns with the classical definition for the PageRank matrix. 
 
 It may feel more natural to write $\sigma_{ij}$ in our definition rather than $\sigma_{ji}$, and this wouldn't cause significant problems, but our choice better captures the meaning of the PageRank matrix. Given a vector $v \in \C^n$ which represents PageRank values for each vertex, performing the multiplication $W v$ should cause the vertices to distribute their PageRank evenly among their neighbors. However, since we are dealing with magnetic graphs, some rotation should be gained each time PageRank is transferred along a magnetized edge. If we want that gained rotation to be the signature of the edge \textbf{in the direction of the transfer}, then we must use $\sigma_{ji}$ in our definition, and not $\sigma_{ij}$. (Our choice is further justified by the later \cref{Laplacian Eigenvectors vs PageRank Eigenvectors}, which would pick up an extra transpose (on $L$) if we had used the other definition.)
-
-\begin{defn}\label{defn operator norm}
-Let $A$ be an $n \times n$ matrix over $\C$, and let $\norm{\cdot}$ be a vector norm on $\C^n$. Then the \textit{operator norm of $A$ induced by $\norm{\cdot}$} is
-$$\norm{A} := \sup_{\substack{\norm{x} = 1}} \norm{A x}.$$
-We will write $\norm{A}_p$ for the operator norm induced by the $l_p$ vector norm.
-\end{defn}
 
 \begin{prop}
 For any PageRank matrix $W$, we have $\norm{W}_1 \leq 1$.
@@ -879,10 +891,30 @@ Let $L$ be the Laplacian of $G$. Then,
 \end{alignat*}
 \end{proof}
 
-\cref{traditional PageRank vector exists iff graph has balanced connected component} dashes our hopes of borrowing the nonmagnetic definition of the PageRank vector. But it turns out we \textit{can} borrow the nonmagnetic definition of the ``personalized" PageRank vector.
+\cref{traditional PageRank vector exists iff graph has balanced connected component} dashes our hopes of borrowing the nonmagnetic definition of the PageRank vector. But it turns out we \textit{can} borrow the nonmagnetic definition of the ``personalized" PageRank vector. Our definition is based closely off the one from Chung and Zhao's paper.
 
 \begin{defn}
-
+Let $W$ be an $n \times n$ PageRank matrix. Then the \textit{personalized PageRank vector} with \textit{jumping constant} $\alpha \in (0, 1)$ and \textit{seed vector} $s \in \C^n$, written pr$(\alpha, s)$, is defined to be the unique $x \in \C^n$ satisfying
+$$
+\alpha s + (1 - \alpha) W x = x.
+$$
 \end{defn}
+
+To show that this definition is valid, we need to show that there is indeed a unique $x \in \C^n$ satisfying that equation. The equation can be rewritten as 
+\begin{equation}
+\alpha s = (I - (1 - \alpha)W)x.\label{eq: PageRank rearranged}
+\end{equation}
+So it suffices to show $(I - (1 - \alpha)W)$ is invertible. That is the same as saying 1 is not an eigenvalue of the matrix $(1 - \alpha)W$, which is clearly true since 
+$$
+\norm{W}_1 \leq 1 \implies \norm{(1 - \alpha)W}_1 < 1.
+$$ 
+This is maybe the most straightforward way to see that our definition of the personalized PageRank vector is valid, but we can alternatively use \cref{inverse of I - M} to get that $(I - (1 - \alpha)W)$ is invertible and 
+$$
+(I - (1 - \alpha)W)^{-1} = \sum_{k=0}^{\infty} ((1 - \alpha) W)^k = \sum_{k=0}^{\infty} (1 - \alpha)^k W^k.
+$$ This approach is nice because it lets us actually solve \cref{eq: PageRank rearranged} for the PageRank vector $x$. Multiplying both sides of \cref{eq: PageRank rearranged} by $(I - (1 - \alpha)W)^{-1}$ gives the following fact.
+
+\begin{prop}
+Let $W$ be an $n \times n$ PageRank matrix, $\alpha \in (0, 1)$, and $s \in \C^n$. Then $$\text{pr}(\alpha, s) = \alpha \left( \sum_{k=0}^{\infty} (1 - \alpha)^k W^k \right) s.$$
+\end{prop}
 
 \end{document}
