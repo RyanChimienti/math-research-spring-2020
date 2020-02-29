@@ -794,16 +794,50 @@ x_j^i := \begin{bmatrix}
          \end{bmatrix}.
 $$
 
-It remains to show that the $x_j^i$'s are linearly independent. The key is that the vectors 
+It remains to show that the $x_j^i$'s are linearly independent. Observe that the vectors 
 $$
 \begin{bmatrix}
            1 \\
            \omega_{k-1} \\
            \vdots \\
            \omega_{1}
-         \end{bmatrix}... TODO
+         \end{bmatrix},
+\begin{bmatrix}
+           1 \\
+           \omega_{k-1}^2 \\
+           \vdots \\
+           \omega_{1}^2
+         \end{bmatrix},       
+\dots,
+\begin{bmatrix}
+           1 \\
+           \omega_{k-1}^k \\
+           \vdots \\
+           \omega_{1}^k
+         \end{bmatrix}
+=
+\begin{bmatrix}
+           1 \\
+           1 \\
+           \vdots \\
+           1
+         \end{bmatrix}
 $$
+are the columns of a Vandermonde matrix (move the last vector all the way to the left). Since all the entries in the first vector are distinct, the determinant of that Vandermonde matrix is nonzero. Thus, those vectors are linearly independent. But also the vectors $$v^i_1, \dots, v^i_n$$ are linearly independent, as they were chosen to be linearly independent eigenvectors of $G^i$. Since each 
+$$
+x_j^i = 
+\begin{bmatrix}
+           1 \\
+           \omega_{k-1}^i \\
+           \vdots \\
+           \omega_{1}^i
+         \end{bmatrix}
+\otimes v^i_j
+$$
+(where $\otimes$ is the tensor product), and the left hand factors are linearly  //TODO
 \end{proof}
+
+\pagebreak
 
 \section{Operator Norms}
 
