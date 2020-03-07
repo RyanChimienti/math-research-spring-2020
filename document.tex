@@ -37,8 +37,11 @@
 \newcommand{\C}{\mathbb C}
 \DeclarePairedDelimiter\V{\langle}{\rangle} 
 \DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
-\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}
 \DeclarePairedDelimiter\norm{\lVert}{\rVert}
+\DeclareMathOperator{\pr}{pr}
+\DeclareMathOperator{\lazypr}{lazypr}
+\DeclareMathOperator{\sigdist}{sigdist}
 
 %Allows me to make use of the \set* command, with a semicolon for the pipe.%
 \usepackage{xparse}
@@ -917,16 +920,14 @@ Let $G=(V, E, \sigma)$ be a magnetic graph. Then $G$'s \textit{PageRank matrix} 
 $$
 W_{ij} = 
 \begin{cases}
-\frac{\sigma_{ji}}{d_j} &\text{ if } i \sim j \\
+\frac{\sigma_{ij}}{d_j} &\text{ if } i \sim j \\
 0 &\text{ if } i \not\sim j
 \end{cases}
 $$
 for all $i, j \in V$.
 \end{defn}
 
-In the case where $G$ is simple, this definition aligns with the classical definition for the PageRank matrix. 
-
-It may feel more natural to write $\sigma_{ij}$ in our definition rather than $\sigma_{ji}$, and this wouldn't cause significant problems, but our choice better captures the meaning of the PageRank matrix. Given a vector $v \in \C^n$ which represents PageRank values for each vertex, performing the multiplication $W v$ should cause the vertices to distribute their PageRank evenly among their neighbors. However, since we are dealing with magnetic graphs, some rotation should be gained each time PageRank is transferred along a magnetized edge. If we want that gained rotation to be the signature of the edge \textbf{in the direction of the transfer}, then we must use $\sigma_{ji}$ in our definition, and not $\sigma_{ij}$. (Our choice is further justified by the later \cref{Laplacian Eigenvectors vs PageRank Eigenvectors}, which would pick up an extra transpose (on $L$) if we had used the other definition.)
+In the case where $G$ is simple, this definition aligns with the classical definition for the PageRank matrix.
 
 \begin{prop}
 For any PageRank matrix $W$, we have $\norm{W}_1 \leq 1$.
@@ -938,8 +939,8 @@ Let $n$ be the number of rows/columns in $W$. It suffices to show that for any $
 &\leq \sum_{j=1}^n \norm*{x_j w_{\bullet j}}_1 \\
 &= \sum_{j=1}^n \left( \abs*{x_j} \norm*{w_{\bullet j}}_1 \right) \\
 &= \sum_{j=1}^n \left( \abs*{x_j} \sum_{i=1}^n \abs*{w_{i j}} \right) \\
-&= \sum_{j=1}^n \left( \abs*{x_j} \sum_{i \sim j} \abs*{\frac{\sigma_{ji}}{d_j}} \right) \\
-&= \sum_{j=1}^n \left( \abs*{x_j} \frac{1}{d_j} \sum_{i \sim j} \abs*{\sigma_{ji}} \right) 
+&= \sum_{j=1}^n \left( \abs*{x_j} \sum_{i \sim j} \abs*{\frac{\sigma_{ij}}{d_j}} \right) \\
+&= \sum_{j=1}^n \left( \abs*{x_j} \frac{1}{d_j} \sum_{i \sim j} \abs*{\sigma_{ij}} \right) 
 = \sum_{j=1}^n \left( \abs*{x_j} \frac{1}{d_j} d_j \right) 
 = \sum_{j=1}^n \abs*{x_j} 
 = \norm*{x}_1 
@@ -950,16 +951,17 @@ Let $n$ be the number of rows/columns in $W$. It suffices to show that for any $
 This proposition implies that, like classical PageRank matrices, magnetic PageRank matrices never have an eigenvalue whose absolute value is greater than 1. This could lead us to hope that the eigenvectors of magnetic PageRank matrices share other traits with the eigenvectors of classical PageRank matrices. For example, classical PageRank matrices are associated with a PageRank vector, which is defined to be a certain nonzero vector $x$ satisfying $W x = x$. Unfortunately, such a vector usually doesn't exist for magnetic PageRank matrices, as the next two facts show.
 
 \begin{prop}\label{Laplacian Eigenvectors vs PageRank Eigenvectors}
-Let $G$ be a magnetic graph on $n$ vertices, with PageRank matrix $W$ and Laplacian $L$. Let $x \in \C^n$. Then $W^T x = x$ if and only if $L x = 0$.
+Let $G$ be a magnetic graph on $n$ vertices, with PageRank matrix $W$ and Laplacian $L$. Let $x \in \C^n$. Then $W^T x = x$ if and only if $L^T x = 0$.
 \end{prop}
 \begin{proof}
 Let $A$ and $D$ be the adjacency matrix and degree matrix of $G$, respectively.  Then $W = A^T D^{-1}$ and $L = D - A$. So it follows that
 \begin{align*}
-W^T x = x &\iff (A^T D^{-1})^T x = x \\
-&\iff D^{-1} A x = x \\
-&\iff A x = D x \\
-&\iff (D - A) x = 0 \\
-&\iff L x = 0.
+W^T x = x &\iff (A D^{-1})^T x = x \\
+&\iff D^{-1} A^T x = x \\
+&\iff A^T x = D x \\
+&\iff (D - A^T) x = 0 \\
+&\iff (D - A)^T x = 0 \\
+&\iff L^T x = 0.
 \end{align*}
 \end{proof}
 
@@ -972,8 +974,8 @@ Let $L$ be the Laplacian of $G$. Then,
 && &\text{There exists a nonzero vector } x \in \C^n \text{ satisfying } W x = x \\
 &\iff\quad &&W \text{ has 1 as an eigenvalue} \\
 &\iff &&W^T \text{ has 1 as an eigenvalue} \\
-&\iff &&\text{There exists a nonzero vector } x \in \C^n \text{ satisfying } W^T x = x \\
-&\iff &&\text{There exists a nonzero vector } x \in \C^n \text{ satisfying } L x = 0 &\quad &\text{(by \cref{Laplacian Eigenvectors vs PageRank Eigenvectors})} \\
+&\iff &&L^T \text{ has 0 as an eigenvalue} &\quad &\text{(by \cref{Laplacian Eigenvectors vs PageRank Eigenvectors})} \\
+&\iff &&L \text{ has 0 as an eigenvalue} \\
 &\iff &&\text{G has a balanced connected component} &&\text{(by \cref{nullity of Laplacian})}.
 \end{alignat*}
 \end{proof}
@@ -981,7 +983,7 @@ Let $L$ be the Laplacian of $G$. Then,
 \cref{traditional PageRank vector exists iff graph has balanced connected component} dashes our hopes of borrowing the nonmagnetic definition of the PageRank vector. But it turns out we \textit{can} borrow the nonmagnetic definition of the ``personalized" PageRank vector. Our definition is based closely off the one from Chung and Zhao's paper.
 
 \begin{defn}
-Suppose we are given an $n \times n$ PageRank matrix $W$. Then the \textit{personalized PageRank vector} with \textit{jumping constant} $\alpha \in (0, 1)$ and \textit{seed vector} $s \in \C^n$, written pr$(\alpha, s)$, is defined to be the unique $x \in \C^n$ satisfying
+Suppose we are given a magnetic graph $G$ with PageRank matrix $W$. Then the graph's \textit{personalized PageRank vector} with \textit{jumping constant} $\alpha \in (0, 1)$ and \textit{seed vector} $s \in \C^n$, written pr$(\alpha, s)$, is defined to be the unique $x \in \C^n$ satisfying
 $$
 \alpha s + (1 - \alpha) W x = x.
 $$
@@ -1001,7 +1003,31 @@ $$
 $$ This approach is nice because it lets us actually solve \cref{eq: PageRank rearranged} for the PageRank vector $x$. Multiplying both sides of \cref{eq: PageRank rearranged} by $(I - (1 - \alpha)W)^{-1}$ gives the following fact.
 
 \begin{prop}
-Let $W$ be an $n \times n$ PageRank matrix, $\alpha \in (0, 1)$, and $s \in \C^n$. Then $$\text{pr}(\alpha, s) = \alpha \left( \sum_{k=0}^{\infty} (1 - \alpha)^k W^k \right) s.$$
+Let $W$ be an $n \times n$ PageRank matrix, $\alpha \in (0, 1)$, and $s \in \C^n$. Then $$\pr(\alpha, s) = \alpha \left( \sum_{k=0}^{\infty} (1 - \alpha)^k W^k \right) s.$$
 \end{prop}
+
+We can also define a ``lazy" variant of the PageRank matrix, which has most of the same properties as the standard PageRank matrix but is sometimes easier to work with.
+
+\begin{defn}
+Let $G$ be a magnetic graph with PageRank matrix $W$. Then the graph's \textit{lazy PageRank matrix} is $Z := (I + W)/2$.
+\end{defn}
+
+If we can show that $\norm{Z}_1 \leq 1$, then $Z$ will be associated with a personalized PageRank vector just like $W$. Indeed, we have
+\begin{align*}
+\norm{Z}_1 &= \norm{(I+W)/2}_1 \\
+&\leq \frac{1}{2} \norm{I}_1 + \frac{1}{2} \norm{W}_1 \\
+&\leq \frac{1}{2} (1) + \frac{1}{2} (1) \\
+&= 1.
+\end{align*}
+So we can make the following defintion:
+
+\begin{defn}
+Suppose we are given a magnetic graph on $n$ vertices with lazy PageRank matrix $Z$. Then the graph's \textit{lazy personalized PageRank vector} with \textit{jumping constant} $\alpha \in (0, 1)$ and \textit{seed vector} $s \in \C^n$, written $\lazypr (\alpha, s)$, is defined to be the unique $x \in \C^n$ satisfying
+$$
+\alpha s + (1 - \alpha) Z x = x.
+$$
+\end{defn}
+
+\section{Magnetic PageRank and the Discrete Green's Function}
 
 \end{document}
