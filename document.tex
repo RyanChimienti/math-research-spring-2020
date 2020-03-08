@@ -44,10 +44,12 @@
 \DeclareMathOperator{\pr}{pr}
 \DeclareMathOperator{\lazypr}{lazypr}
 \DeclareMathOperator{\sigdist}{sigdist}
+\DeclareMathOperator{\vol}{Vol}
 \newcommand{\lap}{\mathcal{L}}
+\newcommand{\normadj}{\mathcal{A}}
 \newcommand{\laplace}{\Delta}
 \newcommand{\green}{\mathcal{G}}
-\newcommand{\asymgreen}{\textbf{G}}
+\newcommand{\asymgreen}{\normalfont{\textbf{G}}}
 \DeclarePairedDelimiter\inner{\langle}{\rangle} 
 
 %Allows me to make use of the \set* command, with a semicolon for the pipe.%
@@ -934,7 +936,7 @@ for all $i, j \in V$.
 
 In the case where $G$ is simple, this definition aligns with the classical definition for the PageRank matrix.
 
-\begin{prop}
+\begin{prop}\label{operator norm of PageRank matrix leq 1}
 For any PageRank matrix $W$, we have $\norm{W}_1 \leq 1$.
 \end{prop}
 \begin{proof}
@@ -1035,27 +1037,40 @@ $$
 
 \section{Magnetic PageRank and the Discrete Green's Function}
 
-Throughout this section, let $G$ be a magnetic graph on $n$ vertices, with degree matrix $D$ and adjacency matrix $A$. Assume $G$ is connected and has at least 2 vertices, so that $D$ is invertible. Let $G$ have Laplacian $L$, PageRank matrix $W$, and lazy PageRank matrix $Z$. Fix $\alpha \in (0, 1)$ to be used as a jumping constant when computing the personalized PageRank vector for $G$, and let $$\beta := \frac{2 \alpha}{1 - \alpha}.$$ We now describe the normalized Laplacian and some of its properties.
+Throughout this section, let $G=(V, E, \sigma)$ be a magnetic graph on $n$ vertices, with degree matrix $D$ and adjacency matrix $A$. Assume $G$ is connected and has at least 2 vertices, so that $D$ is invertible. Let $G$ have Laplacian $L$, PageRank matrix $W$, and lazy PageRank matrix $Z$. Fix $\alpha \in (0, 1)$, and let $$\beta := \frac{2 \alpha}{1 - \alpha}.$$
 \begin{defn} 
 The \textit{normalized Laplacian} of $G$ is
 $$
 \lap := D^{-1/2} L D^{-1/2}. 
 $$
 \end{defn}
-\begin{prop}\label{Normalized Laplacian is Hermitian}
-$\lap$ is Hermitian.
+\begin{defn}
+The \textit{normalized adjacency matrix} of $G$ is
+$$
+\normadj := D^{-1/2} A D^{-1/2}. 
+$$
+\end{defn}
+
+Since $L$ and $A$ are Hermitian, $\lap$ and $\normadj$ are Hermitian too. Normalizing the Laplacian and adjacency matrix in this way is nice, because instead of the unnormalized relationship $L = D - A$, we have the cleaner relationship $$\lap = I - \normadj.$$
+But what does this have to do with PageRank? It turns out that $$W = D^{1/2} \normadj D^{-1/2},$$ so $W$ can be viewed as an ``asymmetric" (or more precisely non-Hermitian) version of $\normadj$. This idea of working with asymmetric versions of Hermitian matrices will show up a lot. It's important because it bridges the gap from the asymmetric PageRank world of $W$ and $Z$ to the symmetric Laplacian world of $\normadj$ and $\lap$.
+
+Because $\lap$ is Hermitian, it has $n$ real eigenvalues. Going forward we will refer to these as $$\lambda_1 \leq \dots \leq \lambda_n$$ with the corresponding orthonormal eigenvectors $$\phi_1, \dots, \phi_n.$$
+
+\begin{prop}
+The eigenvalues of $\lap$ satisfy $$0 \leq \lambda_1 \leq \dots \leq \lambda_n \leq 2.$$
 \end{prop}
 \begin{proof}
-We have:
+We have $\normadj = I - \lap$, so $\normadj$ has the same eigenvectors $\phi_1, \dots, \phi_n$ as $\lap$, but with eigenvalues $$1 - \lambda_1, \dots, 1 - \lambda_n.$$ Since $W$ is similar to $\normadj$, it has those eigenvalues too. But from \cref{operator norm of PageRank matrix leq 1} we have $\norm{W}_1 \leq 1$, so those eigenvalues have absolute value at most 1. That is, for every $k \in \set{1, \dots, n}$, we have
 $$
-\lap^* = \left( D^{-1/2} L D^{-1/2} \right)^* = D^{-1/2} L^* D^{-1/2} = D^{-1/2} L D^{-1/2} = \lap.
+\abs*{1 - \lambda_k} \leq 1 \implies 0 \leq \lambda_k \leq 2.
 $$
 \end{proof}
+
 
 We take the following definition from Wikipedia and Linear Algebra Done Right.
 
 \begin{defn}
-A matrix $A \in M_{n \times n}(\C)$ is said to be \textit{positive-semidefinite} if $A$ is Hermitian and $$\inner*{ Av, v } \geq 0$$ for every $v \in \C^n$. (Note that $\inner*{ Av, v}$ is automatically real since $A$ is Hermitian.)
+A matrix $B \in M_{n \times n}(\C)$ is said to be \textit{positive-semidefinite} if $B$ is Hermitian and $$\inner*{ Bv, v } \geq 0$$ for every $v \in \C^n$. (Note that $\inner*{ Bv, v}$ is automatically real since $B$ is Hermitian.)
 \end{defn}
 
 \begin{prop}
@@ -1074,7 +1089,7 @@ $\lap$ is Hermitian by \cref{Normalized Laplacian is Hermitian}. Now let $v \in 
 Now from Linear Algebra Done Right (Proposition 7.35, pg 226) we have:
 
 \begin{prop}
-Let $A \in M_{n \times n}(\C)$. Then $A$ is positive-semidefinite iff $A$ is Hermitian and all the eigenvalues of $A$ are nonnegative.
+Let $B \in M_{n \times n}(\C)$. Then $B$ is positive-semidefinite iff $B$ is Hermitian and all the eigenvalues of $B$ are nonnegative.
 \end{prop}
 
 So we can conclude that $\lap$ has $n$ real, nonnegative eigenvalues. Going forward, we will refer to these as 
@@ -1149,7 +1164,6 @@ $$
 $$
 \end{thm}
 \begin{proof}
-We have
 \begin{align*}
 \frac{\lazypr (\alpha, s)}{\beta} 
 &= \frac{\alpha}{\beta} \left[ I - (1 - \alpha)Z \right]^{-1} s \\ 
@@ -1162,6 +1176,22 @@ We have
 \end{align*}
 \end{proof}
 
+We now turn our attention to the PageRank vectors resulting from seed vectors of a special form. Namely, let $S$ be an induced subgraph of $G$, and define the seed vector $f_S \in \C^n$ by
+$$
+(f_S)_v =
+\begin{cases}
+\frac{d_v}{\vol(S)} &\text{if } v \in S \\
+0 &\text{otherwise}
+\end{cases}.
+$$
+Equivalently, we have $$f_S = D \chi_S / \vol (S),$$
+where $\chi_S \in \C^n$ is 1 at the vertices in $S$ and 0 everywhere else. Our goal is to prove the following theorem, wherein $\lazypr(\alpha, f_S)(S)$ denotes $\sum_{v \in S} \lazypr(\alpha, f_S)_v$.
 
+\begin{thm}
+$\lazypr(\alpha, f_S)(S)$ is real, and 
+$$
+\lazypr(\alpha, f_S)(S) \geq 1 - \frac{\abs*{\partial(S)} + \sum_{(u,v) \in E^{or}(G)}{(1 - \Re(\sigma_{uv}))}}{\beta \vol (S)}.
+$$
+\end{thm}
 
 \end{document}
