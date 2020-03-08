@@ -39,9 +39,16 @@
 \DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
 \DeclarePairedDelimiter\abs{\lvert}{\rvert}
 \DeclarePairedDelimiter\norm{\lVert}{\rVert}
+
+%Commands specifically for spectral graph theory
 \DeclareMathOperator{\pr}{pr}
 \DeclareMathOperator{\lazypr}{lazypr}
 \DeclareMathOperator{\sigdist}{sigdist}
+\newcommand{\lap}{\mathcal{L}}
+\newcommand{\laplace}{\Delta}
+\newcommand{\green}{\mathcal{G}}
+\newcommand{\asymgreen}{\textbf{G}}
+\DeclarePairedDelimiter\inner{\langle}{\rangle} 
 
 %Allows me to make use of the \set* command, with a semicolon for the pipe.%
 \usepackage{xparse}
@@ -840,8 +847,6 @@ $$
 (where $\otimes$ is the tensor product), and the left hand factors are linearly  //TODO
 \end{proof}
 
-\pagebreak
-
 \section{Operator Norms}
 
 \begin{defn}\label{defn operator norm}
@@ -1029,5 +1034,134 @@ $$
 \end{defn}
 
 \section{Magnetic PageRank and the Discrete Green's Function}
+
+Throughout this section, let $G$ be a magnetic graph on $n$ vertices, with degree matrix $D$ and adjacency matrix $A$. Assume $G$ is connected and has at least 2 vertices, so that $D$ is invertible. Let $G$ have Laplacian $L$, PageRank matrix $W$, and lazy PageRank matrix $Z$. Fix $\alpha \in (0, 1)$ to be used as a jumping constant when computing the personalized PageRank vector for $G$, and let $$\beta := \frac{2 \alpha}{1 - \alpha}.$$ We now describe the normalized Laplacian and some of its properties.
+\begin{defn} 
+The \textit{normalized Laplacian} of $G$ is
+$$
+\lap := D^{-1/2} L D^{-1/2}. 
+$$
+\end{defn}
+\begin{prop}\label{Normalized Laplacian is Hermitian}
+$\lap$ is Hermitian.
+\end{prop}
+\begin{proof}
+We have:
+$$
+\lap^* = \left( D^{-1/2} L D^{-1/2} \right)^* = D^{-1/2} L^* D^{-1/2} = D^{-1/2} L D^{-1/2} = \lap.
+$$
+\end{proof}
+
+We take the following definition from Wikipedia and Linear Algebra Done Right.
+
+\begin{defn}
+A matrix $A \in M_{n \times n}(\C)$ is said to be \textit{positive-semidefinite} if $A$ is Hermitian and $$\inner*{ Av, v } \geq 0$$ for every $v \in \C^n$. (Note that $\inner*{ Av, v}$ is automatically real since $A$ is Hermitian.)
+\end{defn}
+
+\begin{prop}
+$\lap$ is positive-semidefinite.
+\end{prop}
+\begin{proof}
+$\lap$ is Hermitian by \cref{Normalized Laplacian is Hermitian}. Now let $v \in \C^n$. We have:
+\begin{align*}
+\inner*{ \lap v, v } &= \inner*{ D^{-1/2} L D^{-1/2} v, v } \\
+&= \inner*{ L D^{-1/2} v, D^{-1/2} v } && \text{(because $D^{-1/2}$ is self-adjoint)} \\
+&= \inner*{ L \left( D^{-1/2} v \right), D^{-1/2} v } \\
+&\geq 0 && \text{(because $L$ is positive-semidefinite by \cref{Laplacian is positive semi-definite})}.
+\end{align*}
+\end{proof}
+
+Now from Linear Algebra Done Right (Proposition 7.35, pg 226) we have:
+
+\begin{prop}
+Let $A \in M_{n \times n}(\C)$. Then $A$ is positive-semidefinite iff $A$ is Hermitian and all the eigenvalues of $A$ are nonnegative.
+\end{prop}
+
+So we can conclude that $\lap$ has $n$ real, nonnegative eigenvalues. Going forward, we will refer to these as 
+$$0 \leq \lambda_1 \leq \dots \leq \lambda_n$$
+with the corresponding orthonormal eigenvectors
+$$\phi_1, \dots, \phi_n.$$
+
+In order to define Green's Function, we must first introduce a variant of the normalized Laplacian.
+
+\begin{defn}
+The \textit{$\beta$-normalized Laplacian} is $$\lap_\beta := \beta I + \lap.$$
+\end{defn}
+
+We can see $\lap_\beta$ shares the eigenvectors $\phi_1, \dots, \phi_n$ with $\lap$, except the corresponding eigenvalues of $\lap_\beta$ are $\beta + \lambda_1, \dots, \beta + \lambda_n$. Since $\beta > 0$, we can conclude that $\lap_\beta$ does not have 0 as an eigenvalue, and is therefore invertible. So we can make the following definition.
+
+\begin{defn}
+The \textit{discrete Green's function} is $$\green_\beta := \lap_\beta^{-1}.$$
+\end{defn}
+
+Since the inverse of an invertible Hermitian matrix is itself Hermitian, we have that $\green_\beta$ is Hermitian.
+
+Next we want to define an ``asymmetric" (or in other words, non-Hermitian) version of the Green's Function. Asymmetrizing the Green's function will help us relate it to PageRank, since as we shall see the PageRank matrix $W$ is, in some sense, an asymmetric version of $\lap$. The following definition breaks the Green's function's symmetry while preserving its conjugacy class.
+
+\begin{defn}
+The \textit{asymmetric discrete Green's function} is
+$$
+\asymgreen_\beta := D^{1/2} \green_\beta D^{-1/2}.
+$$
+\end{defn}
+
+There is another way to arrive at this definition. We could follow the same procedure we used to define $\green_\beta$, where we start with $\lap$, add $\beta I$, and then take the inverse; except instead we start with an asymmetric version of $\lap$. The asymmetric version of $\lap$ we need is the following.
+
+\begin{defn}
+The \textit{discrete Laplace operator} is the matrix
+$$
+\laplace := D^{1/2} \lap D^{-1/2}.
+$$
+\end{defn}
+
+If we were to define $\asymgreen_\beta$ using $\laplace$, taking the same approach as for $\green_\beta$, we would want to say $$\asymgreen_\beta = \left( \beta I + \laplace \right)^{-1}.$$ Indeed, this definition is equivalent to ours, as the next proposition shows.
+
+\begin{prop}\label{Asymmetric Green's in terms of Laplace operator}
+$\beta I + \laplace$ is invertible, and $$\asymgreen_\beta = \left( \beta I + \laplace \right)^{-1}.$$
+\end{prop}
+\begin{proof}
+Note that $\laplace$ has $n$ nonnegative eigenvalues because it is similar to $\lap$. Since $\beta > 0$, it follows that $\beta I + \laplace$ has $n$ nonzero eigenvalues, meaning $\beta I + \laplace$ is invertible. Finally, we have
+\begin{align*}
+\left( \beta I + \laplace \right)^{-1}
+&= \left( \beta I + D^{1/2} \lap D^{-1/2} \right)^{-1} \\
+&= \left(D^{1/2} \left( \beta I + \lap \right) D^{-1/2} \right)^{-1} \\
+&= \left(D^{1/2} \lap_\beta D^{-1/2} \right)^{-1} \\
+&= D^{1/2} \green_\beta D^{-1/2} \\
+&= \asymgreen_\beta.
+\end{align*}
+\end{proof}
+
+We mentioned earlier that $W$ is like an asymmetric version of $\lap$. To be specific, we have the following relationship.
+
+\begin{prop}\label{Laplace operator and PageRank}
+We have: $$\laplace = I - W.$$
+\end{prop}
+\begin{proof}
+$$\laplace = D^{1/2} \lap D^{-1/2} = L D^{-1} = (D - A)D^{-1} = I - W.$$
+\end{proof}
+
+Now we are finally ready to relate PageRank to $\asymgreen_\beta$.
+
+\begin{thm}
+For any seed vector $s \in \C^n$, we have
+$$
+\lazypr (\alpha, s) = \beta \asymgreen_\beta s.
+$$
+\end{thm}
+\begin{proof}
+We have
+\begin{align*}
+\frac{\lazypr (\alpha, s)}{\beta} 
+&= \frac{\alpha}{\beta} \left[ I - (1 - \alpha)Z \right]^{-1} s \\ 
+&= \left( \frac{\beta}{\alpha} I - 2 Z \right)^{-1} s \\
+&= \left[ \left( \beta + 2 \right) I - 2 Z \right]^{-1} s \\
+&= \left[ \left( \beta + 2 \right) I - (I + W) \right]^{-1} s \\
+&= \left[ \beta I + (I - W) \right]^{-1} s \\
+&= \left( \beta I + \laplace \right)^{-1} s &&\text{(by \cref{Laplace operator and PageRank})} \\
+&= \asymgreen_\beta s &&\text{(by \cref{Asymmetric Green's in terms of Laplace operator})}.
+\end{align*}
+\end{proof}
+
+
 
 \end{document}
