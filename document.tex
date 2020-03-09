@@ -9,6 +9,9 @@
 \usepackage[margin=0.75in]{geometry}
 \setlength{\parindent}{1cm}
 
+%omit eq. before equation references
+\crefformat{equation}{(#2#1#3)}
+
 %Allows me to use begin{thm}, begin{lem}, etc.%
 \newtheorem{thm}{Theorem}
 \crefname{thm}{Theorem}{Theorems}
@@ -920,6 +923,8 @@ So in fact, whenever $m > j > N$ we have
 \end{align*}
 \end{proof}
  
+\pagebreak
+ 
 \section{Magnetic PageRank}
 
 \begin{defn}\label{defn PageRank matrix}
@@ -1035,6 +1040,8 @@ $$
 $$
 \end{defn}
 
+\pagebreak
+
 \section{Magnetic PageRank and the Discrete Green's Function}
 
 Throughout this section, let $G=(V, E, \sigma)$ be a magnetic graph on $n$ vertices, with degree matrix $D$ and adjacency matrix $A$. Assume $G$ is connected and has at least 2 vertices, so that $D$ is invertible. Let $G$ have Laplacian $L$, PageRank matrix $W$, and lazy PageRank matrix $Z$. Fix $\alpha \in (0, 1)$, and let $$\beta := \frac{2 \alpha}{1 - \alpha}.$$
@@ -1066,37 +1073,6 @@ $$
 $$
 \end{proof}
 
-
-We take the following definition from Wikipedia and Linear Algebra Done Right.
-
-\begin{defn}
-A matrix $B \in M_{n \times n}(\C)$ is said to be \textit{positive-semidefinite} if $B$ is Hermitian and $$\inner*{ Bv, v } \geq 0$$ for every $v \in \C^n$. (Note that $\inner*{ Bv, v}$ is automatically real since $B$ is Hermitian.)
-\end{defn}
-
-\begin{prop}
-$\lap$ is positive-semidefinite.
-\end{prop}
-\begin{proof}
-$\lap$ is Hermitian by \cref{Normalized Laplacian is Hermitian}. Now let $v \in \C^n$. We have:
-\begin{align*}
-\inner*{ \lap v, v } &= \inner*{ D^{-1/2} L D^{-1/2} v, v } \\
-&= \inner*{ L D^{-1/2} v, D^{-1/2} v } && \text{(because $D^{-1/2}$ is self-adjoint)} \\
-&= \inner*{ L \left( D^{-1/2} v \right), D^{-1/2} v } \\
-&\geq 0 && \text{(because $L$ is positive-semidefinite by \cref{Laplacian is positive semi-definite})}.
-\end{align*}
-\end{proof}
-
-Now from Linear Algebra Done Right (Proposition 7.35, pg 226) we have:
-
-\begin{prop}
-Let $B \in M_{n \times n}(\C)$. Then $B$ is positive-semidefinite iff $B$ is Hermitian and all the eigenvalues of $B$ are nonnegative.
-\end{prop}
-
-So we can conclude that $\lap$ has $n$ real, nonnegative eigenvalues. Going forward, we will refer to these as 
-$$0 \leq \lambda_1 \leq \dots \leq \lambda_n$$
-with the corresponding orthonormal eigenvectors
-$$\phi_1, \dots, \phi_n.$$
-
 In order to define Green's Function, we must first introduce a variant of the normalized Laplacian.
 
 \begin{defn}
@@ -1111,7 +1087,7 @@ The \textit{discrete Green's function} is $$\green_\beta := \lap_\beta^{-1}.$$
 
 Since the inverse of an invertible Hermitian matrix is itself Hermitian, we have that $\green_\beta$ is Hermitian.
 
-Next we want to define an ``asymmetric" (or in other words, non-Hermitian) version of the Green's Function. Asymmetrizing the Green's function will help us relate it to PageRank, since as we shall see the PageRank matrix $W$ is, in some sense, an asymmetric version of $\lap$. The following definition breaks the Green's function's symmetry while preserving its conjugacy class.
+Next we want to define an asymmetric version of the Green's Function. Asymmetrizing the Green's function will help us relate it to PageRank, as we discussed earlier. We asymmetrize the Green's function the same way we asymmetrized $\normadj$ to get $W$.
 
 \begin{defn}
 The \textit{asymmetric discrete Green's function} is
@@ -1146,13 +1122,19 @@ Note that $\laplace$ has $n$ nonnegative eigenvalues because it is similar to $\
 \end{align*}
 \end{proof}
 
-We mentioned earlier that $W$ is like an asymmetric version of $\lap$. To be specific, we have the following relationship.
+Since $\laplace$ is an asymmetric version of $\lap$ and $W$ is an asymmetric version of $\normadj$, we naturally have the following relationship.
 
 \begin{prop}\label{Laplace operator and PageRank}
 We have: $$\laplace = I - W.$$
 \end{prop}
 \begin{proof}
-$$\laplace = D^{1/2} \lap D^{-1/2} = L D^{-1} = (D - A)D^{-1} = I - W.$$
+$$
+\laplace 
+= D^{1/2} \lap D^{-1/2} 
+= D^{1/2} (I - \normadj) D^{-1/2}
+= I - D^{1/2} \normadj D^{-1/2}
+= I - W.
+$$
 \end{proof}
 
 Now we are finally ready to relate PageRank to $\asymgreen_\beta$.
@@ -1187,11 +1169,136 @@ $$
 Equivalently, we have $$f_S = D \chi_S / \vol (S),$$
 where $\chi_S \in \C^n$ is 1 at the vertices in $S$ and 0 everywhere else. Our goal is to prove the following theorem, wherein $\lazypr(\alpha, f_S)(S)$ denotes $\sum_{v \in S} \lazypr(\alpha, f_S)_v$.
 
-\begin{thm}
+\begin{thm}\label{bound on lazy PageRank}
 $\lazypr(\alpha, f_S)(S)$ is real, and 
 $$
 \lazypr(\alpha, f_S)(S) \geq 1 - \frac{\abs*{\partial(S)} + \sum_{(u,v) \in E^{or}(G)}{(1 - \Re(\sigma_{uv}))}}{\beta \vol (S)}.
 $$
 \end{thm}
+
+Before we can prove this theorem, we will need several facts about positive-semidefinite matrices. These were mostly taken from Wikipedia, Math Stack Exchange, and Linear Algebra Done Right.
+
+\begin{defn}
+A matrix $B \in M_{n \times n}(\C)$ is said to be \textit{positive-semidefinite} if $B$ is Hermitian and $$\inner*{ Bv, v } \geq 0$$ for every $v \in \C^n$. (Note that $\inner*{ Bv, v }$ is automatically real since $B$ is Hermitian.)
+\end{defn}
+
+\begin{lem}\label{eigenvalue characterization of positive-semidefiniteness}
+Let $B \in M_{n \times n}(\C)$. Then $B$ is positive-semidefinite iff $B$ is Hermitian and all the eigenvalues of $B$ are nonnegative.
+\end{lem}
+\begin{proof}
+This is part of Proposition 7.35 on page 226 of Linear Algebra Done Right (3rd Edition).
+\end{proof}
+
+\begin{lem}\label{eigenvalue characterization of Hermitian matrix}
+Let $B \in M_{n \times n}(\C)$. If there exists an orthonormal basis for $\C^n$ made up of eigenvectors of $B$, and their eigenvalues are all real, then $B$ is Hermitian.
+\end{lem}
+
+\begin{lem}\label{eigenvalue condition for positive semidefiniteness}
+Let $B \in M_{n \times n}(\C)$. If there exists an orthonormal basis for $\C^n$ made up of eigenvectors of $B$, and their eigenvalues are all real and nonnegative, then $B$ is positive-semidefinite. 
+\end{lem}
+\begin{proof}
+This follows from \cref{eigenvalue characterization of Hermitian matrix} and \cref{eigenvalue characterization of positive-semidefiniteness}.
+\end{proof}
+
+\begin{lem}\label{HBH positive semidefinite}
+Let $B, H \in M_{n \times n}(\C)$. Assume $B$ is positive-semidefinite and $H$ is Hermitian. Then $HBH$ is positive-semidefinite.
+\end{lem}
+\begin{proof}
+To see that $HBH$ is Hermitian, observe that
+$$
+(HBH)^* = H^* B^* H^* = HBH,
+$$
+where $B^* = B$ because $B$ is Hermitian. Now let $v \in \C^n$ be arbitrary. Then,
+\begin{align*}
+\inner*{HBH v, v}
+&= \inner*{B H v, H v} &&\text{(because $H$ is Hermitian)} \\
+&= \inner*{B (H v), (H v)} \\
+&\geq 0 &&\text{(because $B$ is positive-semidefinite)}.
+\end{align*}
+Therefore, $HBH$ is positive-semidefinite.
+\end{proof}
+
+The next two lemmas will provide steps in the proof of \cref{bound on lazy PageRank}.
+
+\begin{lem}\label{Laplacian expression is positive semidefinite}
+$L - \beta \laplace \asymgreen_\beta D$ is positive-semidefinite.
+\end{lem}
+\begin{proof}
+We have 
+\begin{align*}
+L - \beta \laplace \asymgreen_\beta D
+&= L - \beta \left( L D^{-1} \right) \left( D^{1/2} \green_\beta D^{-1/2} \right) D \\
+&= L - \beta L D^{-1/2} \lap_\beta^{-1} D^{1/2} \\
+&= D^{1/2} \left( \lap - \beta \lap \lap_\beta^{-1} \right) D^{1/2}.
+\end{align*}
+By \cref{HBH positive semidefinite}, since $D^{1/2}$ is Hermitian it suffices to show $\lap - \beta \lap \lap_\beta^{-1}$ is positive-semidefinite. Recall that $\phi_1, \dots, \phi_n$ are orthonormal eigenvectors for $\lap$, with corresponding eigenvalues $0 \leq \lambda_1 \leq \dots \leq \lambda_n.$ We claim that for every $k \in \set{1, \dots, n}$, $\phi_k$ is an eigenvector of $\lap - \beta \lap \lap_\beta^{-1}$ with a nonnegative, real eigenvalue. If we can show this, then by \cref{eigenvalue condition for positive semidefiniteness}, the proof will be finished. For fixed $k$, we have:
+\begin{align*}
+\left( \lap - \beta \lap \lap_\beta^{-1} \right) \phi_k 
+&= \lap \phi_k - \beta \lap \lap_\beta^{-1} \phi_k \\
+&= \lambda_k \phi_k - \frac{\beta}{\beta + \lambda_k} \lap \phi_k \\
+&= \lambda_k \phi_k - \frac{\beta \lambda_k}{\beta + \lambda_k} \phi_k \\
+&= \left(\lambda_k - \frac{\beta \lambda_k}{\beta + \lambda_k}  \right) \phi_k \\
+&= \left( \frac{\lambda_k^2}{\beta + \lambda_k} \right) \phi_k.
+\end{align*}
+We see that $\phi_k$ is an eigenvector of $\lap - \beta \lap \lap_\beta^{-1}$, and the eigenvalue is real and nonnegative, as desired.
+\end{proof}
+
+\begin{lem}
+We have:
+$$
+\beta \asymgreen_\beta = I - \laplace \asymgreen_\beta
+$$
+\end{lem}
+\begin{proof}
+\begin{align*}
+\beta \asymgreen_\beta &=
+\left[ (\beta I + \laplace) - \laplace \right] \asymgreen_\beta \\
+&= \left( \asymgreen_\beta^{-1} - \laplace \right) \asymgreen_\beta &&\text{(by \cref{Asymmetric Green's in terms of Laplace operator})} \\
+&= I - \laplace \asymgreen_\beta.
+\end{align*}
+\end{proof}
+
+We are finally ready to prove \cref{bound on lazy PageRank}.
+
+\begin{proof}[Proof of \cref{bound on lazy PageRank}]
+We have:
+\begin{align}
+\lazypr(\alpha, f_S)(S)
+&= \chi_S^* \lazypr(\alpha, f_S) \nonumber \\
+&= \chi_S^* \beta \asymgreen_\beta f_s \nonumber \\
+&= \chi_S^* (I - \laplace \asymgreen_\beta) f_s \nonumber \\
+&= 1 - \chi_S^* \laplace \asymgreen_\beta f_s \nonumber \\
+&= 1 - \frac{1}{\beta \vol(S)} \chi_S^* \left( \beta \laplace \asymgreen_\beta D \right) \chi_S \label{pre leqstep} \\
+&\geq 1 - \frac{1}{\beta \vol(S)} \chi_S^* L \chi_S \label{leqstep} \\
+&= 1 - \frac{\vol{(S)} - \sum_{(u,v) \in E^{or}(S)} \sigma_{uv}}{\beta \vol(S)} \label{sum over L step} \\
+&= 1 - \frac{\vol{(S)} - \abs*{E^{or}(S)} + \abs*{E^{or}(S)} - \sum_{(u,v) \in E^{or}(S)} \sigma_{uv}}{\beta \vol(S)} \nonumber \\
+&= 1 - \frac{\abs*{\partial(S)} + \sum_{(u,v) \in E^{or}(G)}{(1 - \sigma_{uv})}}{\beta \vol (S)} \nonumber \\
+&= 1 - \frac{\abs*{\partial(S)} + \sum_{(u,v) \in E^{or}(G)}{(1 - \Re(\sigma_{uv}))}}{\beta \vol (S)}. \nonumber
+\end{align}
+
+Combining \cref{Laplacian expression is positive semidefinite} with the fact that $L$ is Hermitian, we get that $\beta \laplace \asymgreen_\beta D$ is Hermitian, so \cref{pre leqstep} is real. This proves that $\lazypr(\alpha, f_S)(S)$ is real, as claimed in the theorem. 
+
+We get \cref{leqstep} by observing that both $\chi_S^* L \chi_S$ and $\chi_S^* \left( \beta \laplace \asymgreen_\beta D \right) \chi_S$ are real (since the inner matrices are Hermitian), and then using \cref{Laplacian expression is positive semidefinite} to conclude that
+\begin{align*}
+\chi_S^* L \chi_S - \chi_S^* \left( \beta \laplace \asymgreen_\beta D \right) \chi_S
+&= \chi_S^* \left( L - \beta \laplace \asymgreen_\beta D \right) \chi_S \\
+&= \inner*{\left( L - \beta \laplace \asymgreen_\beta D \right) \chi_S, \chi_S} \\
+&\geq 0.
+\end{align*}
+
+To get \cref{sum over L step} we note that taking $\chi_S^* L \chi_S$ gives the sum of the entries in $L$ restricted to the submatrix with indices in $S$.
+\end{proof}
+
+
+
+
+
+
+%We take the following definition from Wikipedia and Linear Algebra Done Right.
+
+
+
+
+
 
 \end{document}
