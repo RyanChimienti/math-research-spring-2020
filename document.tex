@@ -1172,7 +1172,7 @@ where $\chi_S \in \C^n$ is 1 at the vertices in $S$ and 0 everywhere else. Our g
 \begin{thm}\label{bound on lazy PageRank}
 $\lazypr(\alpha, f_S)(S)$ is real, and 
 $$
-\lazypr(\alpha, f_S)(S) \geq 1 - \frac{\abs*{\partial(S)} + \sum_{(u,v) \in E^{or}(G)}{(1 - \Re(\sigma_{uv}))}}{\beta \vol (S)}.
+\lazypr(\alpha, f_S)(S) \geq 1 - \frac{\abs*{\partial(S)} + \sum_{(u,v) \in E^{or}(S)}{(1 - \Re(\sigma_{uv}))}}{\beta \vol (S)}.
 $$
 \end{thm}
 
@@ -1272,8 +1272,8 @@ We have:
 &\geq 1 - \frac{1}{\beta \vol(S)} \chi_S^* L \chi_S \label{leqstep} \\
 &= 1 - \frac{\vol{(S)} - \sum_{(u,v) \in E^{or}(S)} \sigma_{uv}}{\beta \vol(S)} \label{sum over L step} \\
 &= 1 - \frac{\vol{(S)} - \abs*{E^{or}(S)} + \abs*{E^{or}(S)} - \sum_{(u,v) \in E^{or}(S)} \sigma_{uv}}{\beta \vol(S)} \nonumber \\
-&= 1 - \frac{\abs*{\partial(S)} + \sum_{(u,v) \in E^{or}(G)}{(1 - \sigma_{uv})}}{\beta \vol (S)} \nonumber \\
-&= 1 - \frac{\abs*{\partial(S)} + \sum_{(u,v) \in E^{or}(G)}{(1 - \Re(\sigma_{uv}))}}{\beta \vol (S)}. \nonumber
+&= 1 - \frac{\abs*{\partial(S)} + \sum_{(u,v) \in E^{or}(S)}{(1 - \sigma_{uv})}}{\beta \vol (S)} \nonumber \\
+&= 1 - \frac{\abs*{\partial(S)} + \sum_{(u,v) \in E^{or}(S)}{(1 - \Re(\sigma_{uv}))}}{\beta \vol (S)}. \nonumber
 \end{align}
 
 Combining \cref{Laplacian expression is positive semidefinite} with the fact that $L$ is Hermitian, we get that $\beta \laplace \asymgreen_\beta D$ is Hermitian, so \cref{pre leqstep} is real. This proves that $\lazypr(\alpha, f_S)(S)$ is real, as claimed in the theorem. 
