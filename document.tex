@@ -551,10 +551,10 @@ A simple graph is balanced because all its signatures are 1. Thus all its connec
 \section{The Frustration Index}
 The frustration index of a magnetic graph is a way to measure how close the graph is to being balanced.
 
-\begin{defn}
-Let $G = (V, E, \sigma)$ be a magnetic graph. Then the frustration index of $G$ is 
+\begin{defn}\label{defn: frustration index}
+Let $G = (V, E, \sigma)$ be a magnetic graph. Then the frustration index of $G$, denoted $\iota(G)$, is 
 $$
-\min_{c: V \rightarrow \C_{\abs*z = 1}}
+\min_{c: V \rightarrow S^1}
 \sum_{i \sim j} 
 \abs*{\overline{c_i} \sigma_{ij} c_j - 1}.
 $$
@@ -1158,7 +1158,7 @@ $$
 \end{align*}
 \end{proof}
 
-We now turn our attention to the PageRank vectors resulting from seed vectors of a special form. Namely, let $S$ be an induced subgraph of $G$, and define the seed vector $f_S \in \C^n$ by
+We now turn our attention to the PageRank vectors resulting from seed vectors of a special form. Namely, let $S$ be a nonempty induced subgraph of $G$, and define the seed vector $f_S \in \C^n$ by
 $$
 (f_S)_v =
 \begin{cases}
@@ -1287,6 +1287,37 @@ We get \cref{leqstep} by observing that both $\chi_S^* L \chi_S$ and $\chi_S^* \
 \end{align*}
 
 To get \cref{sum over L step} we note that taking $\chi_S^* L \chi_S$ gives the sum of the entries in $L$ restricted to the submatrix with indices in $S$.
+\end{proof}
+
+We will next interpret \cref{bound on lazy PageRank} in terms of Cheeger ratios, giving a more direct magnetic analogue of Chung's Section 5, Lemma 2 in her paper \textit{PageRank as a discrete Green's function}. First, we have to define a magnetic version of the Cheeger ratio. Recall that $\iota$ in this definition is the frustration index from \cref{defn: frustration index}.
+
+\begin{defn}
+Let $S$ be an induced subgraph of $G$, with $S \neq 0$ and $S \neq G$. Then the \textit{Cheeger ratio} of $S$ is denoted $h(S)$ and given by
+$$
+h(S) := \frac{\abs*{\partial (S)} + \iota(S)}{\min \set*{\vol(S), \vol(G) - \vol(S)}}.
+$$
+\end{defn}
+
+In the following theorem, $\lazypr_c$ denotes the lazy PageRank vector for the graph $G$, but after $G$ has been switched by the switching function $c$.
+
+\begin{thm}
+Let $S$ be an induced subgraph of $G$, with $S \neq 0$ and $S \neq G$. Then,
+$$
+\max_{c} \lazypr_c (\alpha, f_S) (S) \geq 1 - \frac{1}{\beta} h(S)
+$$
+where the max is taken over switching functions $c: V(G) \rightarrow S^1$.
+\end{thm}
+\begin{proof}
+The left hand side is real by \cref{bound on lazy PageRank}, so the inequality makes sense. We have:
+\begin{align*}
+\max_{c} \lazypr_c (\alpha, f_S) (S)
+&\geq \max_{c} \left( 1 - \frac{\abs*{\partial(S)} + \sum_{(u,v) \in E^{or}(S)}{(1 - \Re(\overline{c_u} \sigma_{uv} c_v))}}{\beta \vol (S)} \right) && \text{(by \cref{bound on lazy PageRank})} \\
+& \geq \max_{c} \left( 1 - \frac{\abs*{\partial(S)} + \sum_{(u,v) \in E^{or}(S)}{\abs*{1 - \overline{c_u} \sigma_{uv} c_v}}}{\beta \vol (S)} \right) \\
+&= 1 - \frac{\abs*{\partial(S)} + \min\limits_c \sum_{(u,v) \in E^{or}(S)}{\abs*{1 - \overline{c_u} \sigma_{uv} c_v}}}{\beta \vol (S)} \\
+&= 1 - \frac{\abs*{\partial(S)} + \iota(S)}{\beta \vol (S)} \\
+&\geq 1 - \frac{1}{\beta} h(S).
+\end{align*}
+Note that throughout this proof, the maximums/minimums exist by a similar argument to (TODO).
 \end{proof}
 
 \end{document}
