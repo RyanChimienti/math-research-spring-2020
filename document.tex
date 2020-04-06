@@ -73,7 +73,7 @@ A \textit{simple graph} is a set of vertices $V$ and a set of oriented edges $E 
 \end{defn}
 
 \begin{defn}
-A \textit{magnetic graph} is a simple graph $(V, E)$ together with a \textit{signature} function $$\sigma : E \rightarrow \C_{\abs*{z}=1}$$ which has the property $\sigma(v, w) = \overline{\sigma(w,v)}$ for all $(v, w) \in E$. We may abbreviate $\sigma(v, w)$ as $\sigma_{vw}$.
+A \textit{magnetic graph} is a simple graph $(V, E)$ together with a \textit{signature} function $$\sigma : E \rightarrow S^1$$ which has the property $\sigma(v, w) = \overline{\sigma(w,v)}$ for all $(v, w) \in E$. We may abbreviate $\sigma(v, w)$ as $\sigma_{vw}$.
 \end{defn}
 
 We may sometimes treat a simple graph as a magnetic graph, in which case all signatures are assumed to be 1. Unless we explicitly state the vertex set of a graph, it is assumed to be $\set*{1, \dots, n}$ for some $n$.
@@ -307,7 +307,7 @@ Let $G=(E, V, \sigma)$ be a magnetic graph. Then the following are equivalent.
 \begin{enumerate}
 \item G is balanced.
 \item The signatures along any cycle multiply to 1 (in either direction).
-\item For every pair of connected vertices $u, v \in V$, there exists $z \in \C_{\abs*{z}=1}$ such that along every walk from $u$ to $v$, the signatures multiply to $z$. 
+\item For every pair of connected vertices $u, v \in V$, there exists $z \in S^1$ such that along every walk from $u$ to $v$, the signatures multiply to $z$. 
 \end{enumerate}
 \end{prop}
 
@@ -320,7 +320,7 @@ Let $G=(E,V, \sigma)$ be a balanced magnetic graph, and let $u, v \in V$ be conn
 \section{Switching Equivalence}
 
 \begin{defn}
-If $G=(V, E, \sigma)$ is a magnetic graph, then a function $c: V \rightarrow \C_{\abs*{z}=1}$ is called a \textit{switching function} for $G$. We may write $c_v$ as shorthand for $c(v)$.
+If $G=(V, E, \sigma)$ is a magnetic graph, then a function $c: V \rightarrow S^1$ is called a \textit{switching function} for $G$. We may write $c_v$ as shorthand for $c(v)$.
 \end{defn}
 
 \begin{defn}
@@ -376,7 +376,7 @@ as desired.
 Let $G^\sigma = (V, E, \sigma)$ and $G^\tau = (V, E, \tau)$ be two magnetic graphs with the same vertices and edges. Then $G^\sigma$ and $G^\tau$ are switching equivalent if and only if along every closed walk, the product of the signatures of $G^\sigma$ equals the product of the signatures of $G^\tau$.
 \end{thm}
 \begin{proof}
-$(\rightarrow)$ Suppose $G^\sigma$ and $G^\tau$ are switching equivalent. Then there is a switching function $c: V \rightarrow \C_{\abs*z = 1}$ that takes $G^\sigma$ to $G^\tau$. Let $v_1, \dots, v_k$ be the vertices along a closed walk, so that $v_1 = v_k$. Then,
+$(\rightarrow)$ Suppose $G^\sigma$ and $G^\tau$ are switching equivalent. Then there is a switching function $c: V \rightarrow S^1$ that takes $G^\sigma$ to $G^\tau$. Let $v_1, \dots, v_k$ be the vertices along a closed walk, so that $v_1 = v_k$. Then,
 \begin{align*}
 \sigma_{v_1 v_2} \sigma_{v_2 v_3} \dots \sigma_{v_{k-1} v_k}
 &= \overline{c_{v_1}} \sigma_{v_1 v_2} \sigma_{v_2 v_3} \dots \sigma_{v_{k-1} v_k} c_{v_1} \\
@@ -563,7 +563,7 @@ $$
 Note that a balanced graph has frustration index 0 (since it is switching equivalent to a graph whose signatures are all 1). Cycle graphs also have a nice frustration index, as we will show next. For this we need a lemma.
 
 \begin{lem}\label{lemma for cycle frustration}
-If $z_1, \dots, z_n \in \C_{\abs*z = 1}$, then
+If $z_1, \dots, z_n \in S^1$, then
 $$
 \abs*{z_1 z_2 \dots z_n - 1} \leq \abs*{z_1 - 1} + \dots + \abs*{z_n - 1}.
 $$
@@ -1265,9 +1265,9 @@ We have:
 \begin{align}
 \lazypr(\alpha, f_S)(S)
 &= \chi_S^* \lazypr(\alpha, f_S) \nonumber \\
-&= \chi_S^* \beta \asymgreen_\beta f_s \nonumber \\
-&= \chi_S^* (I - \laplace \asymgreen_\beta) f_s \nonumber \\
-&= 1 - \chi_S^* \laplace \asymgreen_\beta f_s \nonumber \\
+&= \chi_S^* \beta \asymgreen_\beta f_S \nonumber \\
+&= \chi_S^* (I - \laplace \asymgreen_\beta) f_S \nonumber \\
+&= 1 - \chi_S^* \laplace \asymgreen_\beta f_S \nonumber \\
 &= 1 - \frac{1}{\beta \vol(S)} \chi_S^* \left( \beta \laplace \asymgreen_\beta D \right) \chi_S \label{pre leqstep} \\
 &\geq 1 - \frac{1}{\beta \vol(S)} \chi_S^* L \chi_S \label{leqstep} \\
 &= 1 - \frac{\vol{(S)} - \sum_{(u,v) \in E^{or}(S)} \sigma_{uv}}{\beta \vol(S)} \label{sum over L step} \\
@@ -1317,7 +1317,77 @@ The left hand side is real by \cref{bound on lazy PageRank}, so the inequality m
 &= 1 - \frac{\abs*{\partial(S)} + \iota(S)}{\beta \vol (S)} \\
 &\geq 1 - \frac{1}{\beta} h(S).
 \end{align*}
-Note that throughout this proof, the maximums/minimums exist by a similar argument to (TODO).
+Note that throughout this proof, the maximums/minimums exist by a compactness argument.
+\end{proof}
+
+\section{Effective Resistance}
+
+We will continue using the variables and assumptions from the previous section. To define the effective resistance, we first need to define the unnormalized discrete Green's function $\green$.
+
+\begin{defn}
+The \textit{unnormalized discrete Green's function} is 
+$$
+\green := \sum_{\substack{1 \leq i \leq n \\ \lambda_i \neq 0}} \frac{1}{\lambda_i} \phi_i \phi_i^*.
+$$
+\end{defn}
+
+We can think of $\green$ as a ``pseudoinverse" of $\lap$. If our graph $G$ is unbalanced, meaning $\lap$ is invertible, then $\green = \lap^{-1}$. On the other hand, if $G$ is unbalanced, meaning $\lap$ has nullity 1, then $\green = \sum_{i=2}^{n} \frac{1}{\lambda_i} \phi_i \phi_i^*$. 
+
+We can see that $\green$ has the same eigenvectors $\phi_1, \dots, \phi_n$ as $\lap$, and all its eigenvalues are real and nonnegative. Thus, by \cref{eigenvalue condition for positive semidefiniteness}, $\green$ is positive-semidefinite. We are now ready to define the effective resistance.
+
+\begin{defn}
+Let $u$ and $v$ be vertices of $G$. Then the \textit{effective resistance} between $u$ and $v$ is 
+$$
+R(u, v) := (\chi_v - \chi_u)^* D^{-1/2} \green D^{-1/2} (\chi_v - \chi_u).
+$$
+\end{defn}
+
+Since $\green$ is positive-semidefinite, \cref{HBH positive semidefinite} gives that $D^{-1/2} \green D^{-1/2}$ is positive-semidefinite. Thus, $R(u, v)$ is real and nonnegative for any vertices $u$ and $v$.
+
+We can also define a generalized version of the effective resistance, which is related to the parameter $\alpha$.
+
+\begin{defn}
+Let $u$ and $v$ be vertices of $G$. Then the \textit{generalized effective resistance} between $u$ and $v$ is 
+$$
+R_\alpha(u, v) := \beta (\chi_v - \chi_u)^* D^{-1/2} \green_\beta D^{-1/2} (\chi_v - \chi_u).
+$$
+\end{defn}
+
+Similarly to the effective resistance, this generalized effective resistance is always real and nonnegative. An advantage of the generalized effective resistance is that it can be written in terms of PageRank.
+
+\begin{prop}
+For any vertices $u$ and $v$, we have $$R_\alpha(u, v) = \frac{\lazypr(\alpha, \chi_v)(v)}{d_v} - \frac{\lazypr(\alpha, \chi_v)(u)}{d_u} + \frac{\lazypr(\alpha, \chi_u)(u)}{d_u} - \frac{\lazypr(\alpha, \chi_u)(v)}{d_v}.$$
+\end{prop}
+\begin{proof}
+\begin{align*}
+R_\alpha(u, v) &= \beta (\chi_v - \chi_u)^* D^{-1/2} \green_\beta D^{-1/2} (\chi_v - \chi_u) \\
+&= \beta (\chi_v - \chi_u)^* D^{-1} \asymgreen_\beta (\chi_v - \chi_u) \\
+&= \left( \chi_v^* D^{-1} - \chi_u^* D^{-1} \right) \left[ \beta \asymgreen_\beta \chi_v - \beta \asymgreen_\beta \chi_u \right] \\
+&= \left( \frac{1}{d_v} \chi_v^* - \frac{1}{d_u} \chi_u^* \right) \left[ \lazypr(\alpha, \chi_v) - \lazypr(\alpha, \chi_u) \right] \\
+&= \frac{\lazypr(\alpha, \chi_v)(v)}{d_v} - \frac{\lazypr(\alpha, \chi_v)(u)}{d_u} + \frac{\lazypr(\alpha, \chi_u)(u)}{d_u} - \frac{\lazypr(\alpha, \chi_u)(v)}{d_v}.
+\end{align*}
+\end{proof}
+
+The first and third terms in that sum are real by \cref{bound on lazy PageRank}. Since the whole sum is real, we may conclude that the second term plus the fourth term is real too. However, we can prove an even stronger statement:
+
+\begin{prop}
+For any vertices $u$ and $v$, we have
+$$
+\overline{\lazypr(\alpha, \chi_v)(u)} = \frac{d_u}{d_v} \lazypr(\alpha, \chi_u)(v).
+$$
+\end{prop}
+\begin{proof}
+\begin{align*}
+\overline{\lazypr(\alpha, \chi_v)(u)} &= \overline{\chi_u^* \lazypr(\alpha, \chi_v)} \\
+&= \left( \chi_u^* \beta \asymgreen_\beta \chi_v \right)^* \\
+&= \beta \chi_v^* \asymgreen_\beta^* \chi_u \\
+&= \beta \chi_v^* \left( D^{1/2} \green_\beta D^{-1/2} \right)^* \chi_u \\
+&= \beta \chi_v^* D^{-1/2} \green_\beta D^{1/2} \chi_u \\
+&= \beta \chi_v^* D^{-1} \asymgreen_\beta D \chi_u \\
+&= \beta \left( \frac{1}{d_v} \chi_v^* \right) \asymgreen_\beta (d_u \chi_u) \\
+&= \frac{d_u}{d_v} \chi_v^* \beta \asymgreen_\beta \chi_u \\
+&= \frac{d_u}{d_v} \lazypr(\alpha, \chi_u)(v).
+\end{align*}
 \end{proof}
 
 \end{document}
