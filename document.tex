@@ -134,16 +134,10 @@ Let $v = (v_1, \dots, v_n)$. By direct computation, the vector $L_{(i,j)}v$ cons
 \begin{align*}
 v \cdot L_{(i,j)} v &= v_i \overline{v_i-\sigma_{ij}v_j} + v_j \overline{v_j-\sigma_{ji}v_i} \\
 &= v_i \left(\overline{v_i} - \overline{\sigma_{ij}}\overline{v_j}\right) + v_j \left(\overline{v_j} - \overline{\sigma_{ji}}\overline{v_i}\right) \\
-&= \abs*{v_i}^2 - v_i\overline{\sigma_{ij}}\overline{v_j} - v_j\overline{\sigma_{ji}}\overline{v_i} + \abs*{v_j}^2 \\
-&= \abs*{v_i}^2 - \sigma_{ji}v_i\overline{v_j} - \overline{\sigma_{ji}v_i\overline{v_j}} + \abs*{v_j}^2 \\
-&= \abs*{v_i}^2 - \left(\sigma_{ji}v_i\overline{v_j} + \overline{\sigma_{ji}v_i\overline{v_j}}\right) + \abs*{v_j}^2 \\
-&= \abs*{v_i}^2 - 2 \mathrm{Re}\left(\sigma_{ji}v_i\overline{v_j}\right) + \abs*{v_j}^2 \\
-&\geq \abs*{v_i}^2 - 2 \abs*{\mathrm{Re}\left(\sigma_{ji}v_i\overline{v_j}\right)} + \abs*{v_j}^2 \\
-&\geq \abs*{v_i}^2 - 2 \abs*{\sigma_{ji}v_i\overline{v_j}} + \abs*{v_j}^2 \\
-&= \abs*{v_i}^2 - 2 \abs*{\sigma_{ji}}\abs*{v_i}\abs*{\overline{v_j}} + \abs*{v_j}^2 \\
-&= \abs*{v_i}^2 - 2 \abs*{\sigma_{ji}}\abs*{v_i}\abs*{\overline{v_j}} + \abs*{v_j}^2 \\
-&= \abs*{v_i}^2 - 2 \abs*{v_i}\abs*{v_j} + \abs*{v_j}^2 \\
-&= (\abs*{v_i} - \abs*{v_j})^2 \\
+&= v_i \overline{v_i} - v_i \overline{\sigma_{ij}}\overline{v_j} + v_j \overline{v_j} - v_j \overline{\sigma_{ji}}\overline{v_i} \\
+&= v_i \overline{v_i} - v_i \overline{\sigma_{ij}}\overline{v_j} - \sigma_{ij}v_j \overline{v_i} + \sigma_{ij} v_j \overline{\sigma_{ij} v_j} \\
+&= \left( v_i - \sigma_{ij} v_j \right) \overline{ \left( v_i - \sigma_{ij} v_j \right) } \\
+&= \abs*{v_i - \sigma_{ij} v_j}^2 \\
 &\geq 0.
 \end{align*}
 \end{proof}
