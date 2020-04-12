@@ -554,7 +554,7 @@ $$
 $$
 \end{defn}
 
-Note that a balanced graph has frustration index 0 (since it is switching equivalent to a graph whose signatures are all 1). Cycle graphs also have a nice frustration index, as we will show next. For this we need a lemma.
+Note that the minimum exists by a compactness argument. A balanced graph has frustration index 0 (since it is switching equivalent to a graph whose signatures are all 1). Cycle graphs also have a nice frustration index, as we will show next. For this we need a lemma.
 
 \begin{lem}\label{lemma for cycle frustration}
 If $z_1, \dots, z_n \in S^1$, then
@@ -576,7 +576,7 @@ We use induction on $n$. The claim is clearly true in the base case $n = 1$. Now
 So the claim also holds for $n = k + 1$, and we are done.
 \end{proof}
 
-\begin{prop}
+\begin{prop}\label{frustration of cycle graph}
 Let $G = (V, E, \sigma)$ be a cycle graph on the vertices $\set*{1, \dots, n}$. Let $p$ be the product of the signatures along the cycle in one direction. Then the frustration index of $G$ is $2 \abs*{p - 1}$.
 \end{prop}
 \begin{proof}
@@ -613,6 +613,69 @@ To see this, let $c$ be an arbitrary switching function for $G$, and let $s$ be 
 &= & &2 \abs*{\sigma_{12} \sigma_{23} \dots \sigma_{n1} - 1} &\quad\quad &\text{(switching preserves products along cycles)} \\
 &= & &2 \abs*{p-1}. &&
 \end{alignat*}
+\end{proof}
+
+Actually, we can generalize \cref{frustration of cycle graph} to arbitrary magnetic graphs. We start with a lemma.
+
+\begin{lem}\label{lemma for frustration spanning tree thm}
+Let $g : \R \rightarrow \R$ be given by $g(\theta) := \sqrt{2 - 2 \cos \theta}.$ Then $g^{\prime \prime}$ is defined on the set $\R \setminus \set*{2 k \pi : k \in \Z}$, and it is negative everywhere.
+\end{lem}
+\begin{proof}
+It suffices to prove the same statement for the function $h(\theta) := \sqrt{1 - \cos \theta}$. By the chain rule, $h^\prime$ is defined on $\R \setminus \set*{2 k \pi : k \in \Z}$ and is given by 
+$$h^\prime(\theta) = \frac{\sin \theta}{2 \sqrt{1 - \cos \theta}}.$$   
+Now, by the quotient rule, $h^{\prime \prime}$ is defined on $\R \setminus \set*{2 k \pi : k \in \Z}$ and is given by
+\begin{align*}
+h^{\prime \prime}(\theta) 
+&= \frac{\left( 2 \sqrt{1 - \cos \theta} \right) ( \cos \theta ) - (\sin \theta) \left( \frac{\sin \theta}{\sqrt{1 - \cos \theta}} \right)}{4(1 - \cos \theta)} \\
+&= \frac{2(1 - \cos \theta) \cos \theta - \sin^2 \theta}{4(1 - \cos \theta)^{3/2}} \\
+&= \frac{2 \cos \theta - 2 \cos^2 \theta - \sin^2 \theta}{4(1 - \cos \theta)^{3/2}} \\
+&= - \frac{\cos^2 \theta - 2 \cos \theta + 1}{4(1 - \cos \theta)^{3/2}} \\
+&= - \frac{(1 - \cos \theta)^2}{4(1 - \cos \theta)^{3/2}} \\
+&= - \frac{1}{4} \sqrt{1 - \cos \theta}.
+\end{align*}
+We can see that $h^{\prime \prime}$ is negative everywhere, as desired.
+\end{proof}
+
+\begin{thm}\label{Minimizing frustration reduces spanning tree}
+Let $G = (V, E, \sigma)$ be a connected magnetic graph. Let $c:V \rightarrow S^1$ be a switching function that minimizes the quantity $\sum_{u \sim v} 
+\abs*{\overline{c_u} \sigma_{uv} c_v - 1}$. Then there is some spanning tree in $G$ such that $c$ switches all the signatures in the tree to 1.
+\end{thm}
+\begin{proof}
+Let the switched version of $G$ be called $H$. Suppose for contradiction that there is no spanning tree in $H$ consisting of all 1-edges. Let $S \subseteq V$ contain as many vertices as possible while being spanned (in $H$) by a tree of all 1-edges. Since not all of $H$ is spanned by such a tree, we have $S \neq V$. Thus, there is at least one edge crossing the cut $(S, V \setminus S)$. And since $S$ contains as many vertices as possible, none of the edges crossing that cut have signature 1. Let the signatures of the crossing edges (going from $S$ to $V \setminus S$) be labeled $\tau_1, \dots, \tau_k$.
+
+Now define the function $f : \R \rightarrow \R$ by $$f(\theta) := \sum_{j=1}^k \abs*{e^{i \theta} \tau_j - 1}.$$ In fact, we have 
+$$f(\theta) = \sum_{j=1}^k \abs*{e^{i (\theta + \arg \tau_j)} - 1} = \sum_{j=1}^k g(\theta + \arg \tau_j),$$
+where $g : \R \rightarrow \R$ is given by $$g(\theta) := \abs*{e^{i \theta} - 1} = \sqrt{\sin^2{\theta} + (\cos \theta - 1)^2} = \sqrt{2 - 2 \cos \theta}.$$ 
+For fixed $j \in \set*{1, \dots, k}$, we have $\tau_j \neq 1$, meaning $\arg \tau_j \neq 0$. Thus, by \cref{lemma for frustration spanning tree thm}, $g$ is twice-differentiable at $\arg \tau_j$ and $g^{\prime \prime}(\arg \tau_j) < 0$. Therefore, $f$ is twice-differentiable at 0 and 
+$$
+f^{\prime \prime}(0) = \sum_{j=1}^k g^{\prime \prime}(\arg \tau_j) < 0.
+$$
+It follows that $f$ does not have a minimum at 0, so there exists some $\alpha \in \R$ with $f(\alpha) < f(0)$. That is, 
+\begin{equation}\label{eqn:frustration ineq}
+\sum_{j=1}^k \abs*{e^{i \alpha} \tau_j - 1} < \sum_{j=1}^k \abs*{\tau_j - 1}.
+\end{equation}
+
+Now, define a new switching function $b$ for $G$ by 
+$$
+b_v :=
+\begin{cases}
+c_v &\mbox{if} \quad v \in S \\
+e^{i \alpha} c_v &\mbox{if} \quad v \notin S 
+\end{cases}.
+$$
+We claim that 
+$$\sum_{u \sim v}\abs*{\overline{b_u} \sigma_{uv} b_v - 1} < \sum_{u \sim v}\abs*{\overline{c_u} \sigma_{uv} c_v - 1},$$
+which will contradict the optimality of $c$. If $(u, v)$ is an edge that doesn't cross the cut $(S, V \setminus S)$, then we have 
+$$
+\abs*{\overline{b_u} \sigma_{uv} b_v - 1} = \abs*{\overline{c_u} \sigma_{uv} c_v - 1}.
+$$
+On the other hand, for the edges that do cross the cut we have 
+\begin{align*}
+\sum_{u \in S, v \notin S} \abs*{\overline{b_u} \sigma_{uv} b_v - 1}
+&= \sum_{u \in S, v \notin S} \abs*{\overline{c_u} \sigma_{uv} \left(e^{i \alpha} c_v \right) - 1} \\
+&= \sum_{u \in S, v \notin S} \abs*{e^{i \alpha} \left( \overline{c_u} \sigma_{uv} c_v \right) - 1} \\
+&< \sum_{u \in S, v \notin S} \abs*{\overline{c_u} \sigma_{uv} c_v - 1} && \text{(by \cref{eqn:frustration ineq})}.
+\end{align*}
 \end{proof}
 
 \pagebreak
