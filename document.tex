@@ -47,6 +47,7 @@
 \DeclareMathOperator{\pr}{pr}
 \DeclareMathOperator{\lazypr}{lazypr}
 \DeclareMathOperator{\sigdist}{sigdist}
+\DeclareMathOperator{\asd}{asd}
 \DeclareMathOperator{\vol}{Vol}
 \newcommand{\lap}{\mathcal{L}}
 \newcommand{\normadj}{\mathcal{A}}
@@ -1377,7 +1378,7 @@ The left hand side is real by \cref{bound on lazy PageRank}, so the inequality m
 Note that throughout this proof, the maximums/minimums exist by a compactness argument.
 \end{proof}
 
-\section{Effective Resistance}
+\section{Effective Resistance and Hitting Time}
 
 We will continue using the variables and assumptions from the previous section. To define the effective resistance, we first need to define the unnormalized discrete Green's function $\green$.
 
@@ -1446,5 +1447,78 @@ $$
 &= \frac{d_u}{d_v} \lazypr(\alpha, \chi_u)(v).
 \end{align*}
 \end{proof}
+
+The effective resistance is related to another quantity called the hitting time.
+
+\begin{defn}
+Given two vertices $u$ and $v$, the \textit{hitting time} from $u$ to $v$ is 
+$$
+H(u, v) := \vol(G) (\chi_v - \chi_u)^* D^{-1/2} \green D^{-1/2} \chi_v.
+$$  
+\end{defn}
+
+\begin{prop}
+We have $$\vol(G) R(u, v) = H(u, v) + H(v, u).$$
+\end{prop}
+\begin{proof}
+This follows easily from the definitions.
+\end{proof}
+
+It is fairly easy to check that switching functions interact nicely with the effective resistance and hitting time. The key to the nice relationships is the fact that switching functions interact nicely with Green's function, as the next lemma shows.
+
+\begin{lem}
+Suppose that a switching function $c: V \rightarrow S^\prime$ is applied to $G$ to obtain a new graph $G^\prime$. Let $\green^\prime$ be the Green's function for $G^\prime$. Let $C$ be the diagonal matrix whose entries are given by $C_{vv} = c_v$. Then, $$\green^\prime = C^* \green C.$$
+\end{lem}
+\begin{proof}
+Recall that $\phi_1, \dots, \phi_n$ are orthonormal eigenvectors for $\lap$, with corresponding eigenvalues $\lambda_1, \dots, \lambda_n$. The Laplacian for $G^\prime$ is $\lap^\prime := C^* \lap C$, so the list $C^* \phi_1, \dots, C^* \phi_n$ is made up of eigenvectors of $\lap^\prime$, and the eigenvalues are still $\lambda_1, \dots, \lambda_n$. It is easy to check that these eigenvectors have norm 1. Moreover, for every $1 \leq i < j \leq n$ we have
+$$
+\inner*{C^* \phi_i, C^* \phi_j} = \inner*{\phi_i, C C^* \phi_j} = \inner*{\phi_i, I \phi_j} = \inner*{\phi_i, \phi_j} = 0.
+$$
+So the eigenvectors are actually orthnormal. Thus, by the definition of Green's function we have
+$$
+G^\prime = \sum_{\substack{1 \leq i \leq n \\ \lambda_i \neq 0}} \frac{1}{\lambda_i} \left( C^* \phi_i \right) \left( C^* \phi_i \right)^*
+= \sum_{\substack{1 \leq i \leq n \\ \lambda_i \neq 0}} \frac{1}{\lambda_i} C^* \phi_i \phi_i^* C
+= C^* \left( \sum_{\substack{1 \leq i \leq n \\ \lambda_i \neq 0}} \frac{1}{\lambda_i} \phi_i \phi_i^* \right) C
+= C^* \green C.
+$$
+\end{proof}
+
+With this lemma, it is easy to check the following series of statements.
+
+\begin{prop}
+Suppose that a switching function $c: V \rightarrow S^\prime$ is applied to $G$ to obtain a new graph $G^\prime$. Let $R^c$ be the effective resistance function for $G^\prime$. Then for any vertices $u$ and $v$, we have $$R^c(u, v) = (c_v \chi_v - c_u \chi_u)^* D^{-1/2} \green D^{-1/2} (c_v \chi_v - c_u \chi_u).$$
+\end{prop}
+
+\begin{corollary}
+If $c$ is a switching function for $G$ with $c_u = c_v$, then $R^c (u, v) = R(u, v)$.  
+\end{corollary}
+
+\begin{prop}
+Suppose that a switching function $c: V \rightarrow S^\prime$ is applied to $G$ to obtain a new graph $G^\prime$. Let $H^c$ be the hitting time function for $G^\prime$. Then for any vertices $u$ and $v$, we have $$H^c(u, v) = (c_v \chi_v - c_u \chi_u)^* D^{-1/2} \green D^{-1/2} (c_v \chi_v).$$
+\end{prop}
+
+\begin{corollary}
+If $c$ is a switching function for $G$ with $c_u = c_v$, then $H^c (u, v) = H(u, v)$.  
+\end{corollary}
+
+To state the next theorem nicely, we will make a new definition.   
+\begin{defn}
+For a connected magnetic graph $G$, the \textit{average signature distance} between two vertices $u$ and $v$ is
+$$
+\asd(u, v) := \begin{cases}
+\sigdist(u, v) &\mbox{if $G$ is balanced} \\
+0 &\mbox{otherwise}
+\end{cases}.
+$$
+\end{defn}
+Why is it called the average signature distance? When we walk along a path from $u$ to $v$, we accumulate a product of signatures. Choosing a different path may result in a different product. Informally, the average signature distance is the (unweighted) average of all the unique products we can get by choosing different paths.
+
+\begin{thm}
+Let $u$ and $v$ be distinct vertices in $G$. Then,
+$$
+H(u, v) = \asd(u, v) + \sum_{w \sim u} H^w(w, v)
+$$
+where $H^w(w, v)$ denotes the hitting time from $w$ to $v$, computed on a switched version of $G$ where the switching function takes // TODO
+\end{thm}
 
 \end{document}
