@@ -1388,7 +1388,7 @@ $$
 $$
 \end{defn}
 
-We can think of $\green$ as a ``pseudoinverse" of $\lap$. If our graph $G$ is unbalanced, meaning $\lap$ is invertible, then $\green = \lap^{-1}$. On the other hand, if $G$ is balanced, meaning $\lap$ has nullity 1, then $\green = \sum_{i=2}^{n} \frac{1}{\lambda_i} \phi_i \phi_i^*$. 
+We can view $\green$ as a ``pseudoinverse" of $\lap$. If our graph $G$ is unbalanced, meaning $\lap$ is invertible, then $\green = \lap^{-1}$. On the other hand, if $G$ is balanced, meaning $\lap$ has nullity 1, then $\green$ acts like an inverse of $\lap$ in the orthogonal complement of $\ker \lap$, but still takes the vectors in $\ker \lap$ to 0. Thinking along these lines, we can see that $\green$ is independent of the choice of $\phi_i$'s, so our definition is valid for any graph.
 
 We can see that $\green$ has the same eigenvectors $\phi_1, \dots, \phi_n$ as $\lap$, and all its eigenvalues are real and nonnegative. Thus, by \cref{eigenvalue condition for positive semidefiniteness}, $\green$ is positive-semidefinite. We are now ready to define the effective resistance.
 
