@@ -1489,16 +1489,16 @@ With this lemma, it is easy to check the following series of statements.
 Suppose that a switching function $c: V \rightarrow S^\prime$ is applied to $G$ to obtain a new graph $G^\prime$. Let $R^c$ be the effective resistance function for $G^\prime$. Then for any vertices $u$ and $v$, we have $$R^c(u, v) = (c_v \chi_v - c_u \chi_u)^* D^{-1/2} \green D^{-1/2} (c_v \chi_v - c_u \chi_u).$$
 \end{prop}
 
-\begin{corollary}
-If $c$ is a switching function for $G$ with $c_u = c_v$, then $R^c (u, v) = R(u, v)$.  
-\end{corollary}
-
 \begin{prop}
 Suppose that a switching function $c: V \rightarrow S^\prime$ is applied to $G$ to obtain a new graph $G^\prime$. Let $H^c$ be the hitting time function for $G^\prime$. Then for any vertices $u$ and $v$, we have $$H^c(u, v) = (c_v \chi_v - c_u \chi_u)^* D^{-1/2} \green D^{-1/2} (c_v \chi_v).$$
 \end{prop}
 
+\begin{prop}
+If $u, v$ are vertices of $G$ and $b, c$ are switching functions for $G$ with $\overline{b_u}b_v = \overline{c_u}c_v$, then $R^b (u, v) = R^c (u, v)$ and $H^b (u, v) = H^c (u, v)$.
+\end{prop}
+
 \begin{corollary}
-If $c$ is a switching function for $G$ with $c_u = c_v$, then $H^c (u, v) = H(u, v)$.  
+If $u, v$ are vertices of $G$ and $c$ is a switching function for $G$ with $c_u = c_v$, then $R^c (u, v) = R(u, v)$ and $H^c (u, v) = H(u, v)$.  
 \end{corollary}
 
 To state the next theorem nicely, we will make a new definition.   
@@ -1516,9 +1516,53 @@ Why is it called the average signature distance? When we walk along a path from 
 \begin{thm}
 Let $u$ and $v$ be distinct vertices in $G$. Then,
 $$
-H(u, v) = \asd(u, v) + \sum_{w \sim u} H^w(w, v)
+H(u, v) = \asd(u, v) + \frac{1}{d_u} \sum_{w \sim u} H^w(w, v)
 $$
-where $H^w(w, v)$ denotes the hitting time from $w$ to $v$, computed on a switched version of $G$ where the switching function takes // TODO
+where $H^w(w, v)$ denotes the hitting time from $w$ to $v$, computed on a switched version of $G$ where the switching function $c$ satisfies $\overline{c_w}c_v = \sigma_{uw}$.
 \end{thm}
+\begin{proof}
+We have (justifications for numbered steps are below):
+\begin{align}
+\frac{H(u, v)}{\vol(G)} 
+&= (\chi_v - \chi_u)^* D^{-1/2} \green D^{-1/2} \chi_v \nonumber \\
+&= \chi_v^* D^{-1/2} \green D^{-1/2} \chi_v - \chi_u^* D^{-1/2} \green D^{-1/2} \chi_v \nonumber \\
+&= \chi_v^* D^{-1/2} \green D^{-1/2} \chi_v + \chi_u^* D^{-1/2} I D^{-1/2} \chi_v - \chi_u^* D^{-1/2} \green D^{-1/2} \chi_v \nonumber \\
+&= \chi_v^* D^{-1/2} \green D^{-1/2} \chi_v + \chi_u^* D^{-1/2} (I -\lap \green) D^{-1/2} \chi_v - \chi_u^* D^{-1/2} (I - \lap) \green D^{-1/2} \chi_v \nonumber \\
+&= \frac{\asd(u, v)}{\vol(G)} + \chi_v^* D^{-1/2} \green D^{-1/2} \chi_v - \chi_u^* D^{-1/2} (I - \lap) \green D^{-1/2} \chi_v \label{eqn:lap and green to asd} \\
+&= \frac{\asd(u, v)}{\vol(G)} + \chi_v^* D^{-1/2} \green D^{-1/2} \chi_v - \chi_u^* D^{-1/2} \normadj \green D^{-1/2} \chi_v \nonumber \\
+&= \frac{\asd(u, v)}{\vol(G)} + \chi_v^* D^{-1/2} \green D^{-1/2} \chi_v - \chi_u^* D^{-1} A D^{-1/2} \green D^{-1/2} \chi_v \nonumber \\
+&= \frac{\asd(u, v)}{\vol(G)} + \chi_v^* D^{-1/2} \green D^{-1/2} \chi_v - \frac{1}{d_u} \chi_u^* A D^{-1/2} \green D^{-1/2} \chi_v \nonumber \\
+&= \frac{\asd(u, v)}{\vol(G)} + \chi_v^* D^{-1/2} \green D^{-1/2} \chi_v - \frac{1}{d_u} \sum_{w \sim u} \sigma_{uw} \chi_w^* D^{-1/2} \green D^{-1/2} \chi_v \label{eqn:adj to sum} \\
+&= \frac{\asd(u, v)}{\vol(G)} + \frac{1}{d_u} \left( \sum_{w \sim u} \chi_v^* D^{-1/2} \green D^{-1/2} \chi_v \right) - \frac{1}{d_u} \sum_{w \sim u} \sigma_{uw} \chi_w^* D^{-1/2} \green D^{-1/2} \chi_v \nonumber \\
+&= \frac{\asd(u, v)}{\vol(G)} + \frac{1}{d_u} \sum_{w \sim u} \left( \chi_v^* - \sigma_{uw} \chi_w^* \right) D^{-1/2} \green D^{-1/2} \chi_v \nonumber \\
+&= \frac{\asd(u, v)}{\vol(G)} + \frac{1}{d_u} \sum_{w \sim u} \left( \chi_v - \sigma_{wu} \chi_w \right)^* D^{-1/2} \green D^{-1/2} \chi_v \nonumber \\
+&= \frac{\asd(u, v)}{\vol(G)} + \frac{1}{d_u} \sum_{w \sim u} \frac{H^w(w, v)}{\vol(G)}. \nonumber
+\end{align}
+
+For \cref{eqn:lap and green to asd}, observe that if $G$ is unbalanced, then $\lap \green = I$ and the result follows. Now assume that $G$ is balanced. Then $I - \lap \green = \phi_1 \phi_1^*$, since those matrices act the same way on the basis $\phi_1, \dots, \phi_n$. Before we proceed, we would like to know the entries of $\phi_1$ more explicity. To that end, choose $l_1$ to be the positive real multiple of $D^{-1/2} \phi_1$  with norm $\sqrt{n}$. Then $l_1 \in \ker L$, so all its entries have the same modulus, so all its entries belong to $S^1$. Then for an arbitrary vertex $z$, we have
+$$
+\phi_1(z)
+= \chi_z^* \phi_1
+= \chi_z^* \frac{D^{1/2} l_1}{\norm{D^{1/2} l_1}} 
+= \chi_z^* \frac{D^{1/2} l_1}{\sqrt{\vol(G)}}
+= \frac{\sqrt{d_z}}{\sqrt{\vol(G)}} \chi_z^* l_1
+= \frac{\sqrt{d_z}}{\sqrt{\vol(G)}} l_1(z).
+$$  
+Therefore,
+\begin{align*}
+\chi_u^* D^{-1/2} (I - \lap \green) D^{-1/2} \chi_v
+&= \chi_u^* D^{-1/2} \phi_1 \phi_1^* D^{-1/2} \chi_v \\
+&= \frac{1}{\sqrt{d_u d_v}} \chi_u^* \phi_1 \phi_1^* \chi_v \\
+&= \frac{1}{\sqrt{d_u d_v}} \phi_1(u) \overline{\phi_1(v)} \\
+&= \frac{1}{\sqrt{d_u d_v}} \left( \frac{\sqrt{d_u}}{\sqrt{\vol(G)}} l_1(u) \right) \left( \frac{\sqrt{d_v}}{\sqrt{\vol(G)}} \overline{l_1(v)} \right) \\
+&= \frac{l_1(u) \overline{l_1(v)}}{\vol(G)} \\
+&= \frac{\sigdist(u, v)}{\vol(G)}.
+\end{align*}
+
+For \cref{eqn:adj to sum}, note that for any vector $y \in \C^n$, 
+$$
+\chi_u^* A y = (A y)_{u} = \sum_{j=1}^n A_{uj} y_j = \sum_{w \sim u} A_{uw} y_w = \sum_{w \sim u} \sigma_{uw} y_w = \sum_{w \sim u} \sigma_{uw} \chi^*_w y.
+$$
+\end{proof}
 
 \end{document}
