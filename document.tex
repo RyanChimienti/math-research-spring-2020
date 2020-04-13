@@ -1448,6 +1448,21 @@ $$
 \end{align*}
 \end{proof}
 
+The next theorem bounds the effective resistance using the generalized effective resistance. Since the generalized effective resistance can be expressed in terms of PageRank, this allows us to estimate the effective resistance using PageRank.
+
+\begin{thm}
+If $G$ is balanced, then we have
+$$
+\abs*{\beta R(u, v) - R_\alpha (u, v)}
+\leq \frac{\abs*{1 - \sigdist(u, v)}^2}{\vol(G)} + \frac{\beta^2}{\lambda_2^2}\left( \frac{1}{d_u} + \frac{1}{d_v} \right).
+$$
+And if $G$ is unbalanced, then
+$$
+\abs*{\beta R(u, v) - R_\alpha (u, v)}
+\leq \frac{\beta^2}{\lambda_1^2}\left( \frac{1}{d_u} + \frac{1}{d_v} \right).
+$$
+\end{thm}
+
 The effective resistance is related to another quantity called the hitting time.
 
 \begin{defn}
