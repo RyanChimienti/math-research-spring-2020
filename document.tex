@@ -1380,7 +1380,41 @@ Note that throughout this proof, the maximums/minimums exist by a compactness ar
 
 \section{Effective Resistance and Hitting Time}
 
-We will continue using the variables and assumptions from the previous section. To define the effective resistance, we first need to define the unnormalized discrete Green's function $\green$.
+We will continue using the variables and assumptions from the previous section. However,
+for this section we will also need a more explicit understanding of the vector $\phi_1$ in the case that $G$ is balanced. For that purpose, we define $l_1 \in \C^n$ by 
+$$
+l_1 := \frac{\sqrt{n}}{\norm*{D^{-1/2} \phi_1}} D^{-1/2} \phi_1. 
+$$
+Then if $G$ is balanced, $l_1$ allows us to nicely describe $\phi_1$ per the following lemma.
+
+\begin{lem}
+Suppose $G$ is balanced. Then,
+\begin{enumerate}
+\item $l_1 \in \ker L$
+\item Every entry of $l_1$ belongs to $S^1$
+\item For any vertex $v$ of $G$, we have 
+$$
+\phi_1(v) = \frac{\sqrt{d_v}}{\sqrt{\vol(G)}} l_1(v).
+$$
+\end{enumerate}
+\end{lem}
+\begin{proof}
+Since $G$ is balanced, $\lap$ has 0 as an eigenvalue, so $\lap \phi_1 = 0.$ Therefore,
+$$
+D^{-1/2} L l_1 = \frac{\sqrt{n}}{\norm*{D^{-1/2} \phi_1}} \lap \phi_1 = 0,
+$$
+so $l_1 \in \ker L$ as desired. By \cref{characterization of null space of Laplacian}, all the entries of $l_1$ have the same modulus. But $\norm{l_1} = \sqrt{n}$, so in fact all the entries of $l_1$ have modulus 1, as desired. Finally, observe that for any vertex $v$ of $G$, we have
+$$
+\phi_1(v)
+= \chi_v^* \phi_1
+= \chi_v^* \frac{D^{1/2} l_1}{\norm{D^{1/2} l_1}} 
+= \chi_v^* \frac{D^{1/2} l_1}{\sqrt{\vol(G)}}
+= \frac{\sqrt{d_v}}{\sqrt{\vol(G)}} \chi_v^* l_1
+= \frac{\sqrt{d_v}}{\sqrt{\vol(G)}} l_1(v).
+$$
+\end{proof}
+
+To define the effective resistance, we first need to define the unnormalized discrete Green's function $\green$.
 
 \begin{defn}
 The \textit{unnormalized discrete Green's function} is 
@@ -1554,16 +1588,7 @@ We have (justifications for numbered steps are below):
 &= \frac{\asd(u, v)}{\vol(G)} + \frac{1}{d_u} \sum_{w \sim u} \frac{H^w(w, v)}{\vol(G)}. \nonumber
 \end{align}
 
-For \cref{eqn:lap and green to asd}, observe that if $G$ is unbalanced, then $\lap \green = I$ and the result follows. Now assume that $G$ is balanced. Then $I - \lap \green = \phi_1 \phi_1^*$, since those matrices act the same way on the basis $\phi_1, \dots, \phi_n$. Before we proceed, we would like to know the entries of $\phi_1$ more explicity. To that end, choose $l_1$ to be the positive real multiple of $D^{-1/2} \phi_1$  with norm $\sqrt{n}$. Then $l_1 \in \ker L$, so all its entries have the same modulus, so all its entries belong to $S^1$. Then for an arbitrary vertex $z$, we have
-$$
-\phi_1(z)
-= \chi_z^* \phi_1
-= \chi_z^* \frac{D^{1/2} l_1}{\norm{D^{1/2} l_1}} 
-= \chi_z^* \frac{D^{1/2} l_1}{\sqrt{\vol(G)}}
-= \frac{\sqrt{d_z}}{\sqrt{\vol(G)}} \chi_z^* l_1
-= \frac{\sqrt{d_z}}{\sqrt{\vol(G)}} l_1(z).
-$$  
-Therefore,
+For \cref{eqn:lap and green to asd}, observe that if $G$ is unbalanced, then $\lap \green = I$ and the result follows. Now assume that $G$ is balanced. Then $I - \lap \green = \phi_1 \phi_1^*$, since those matrices act the same way on the basis $\phi_1, \dots, \phi_n$. It follows that
 \begin{align*}
 \chi_u^* D^{-1/2} (I - \lap \green) D^{-1/2} \chi_v
 &= \chi_u^* D^{-1/2} \phi_1 \phi_1^* D^{-1/2} \chi_v \\
