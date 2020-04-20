@@ -1607,7 +1607,10 @@ Let $u$ and $v$ be distinct vertices in $G$. Then,
 $$
 H(u, v) = \asd(u, v) + \frac{1}{d_u} \sum_{w \sim u} H^w(w, v)
 $$
-where $H^w(w, v)$ denotes the hitting time from $w$ to $v$, computed on a switched version of $G$ where the switching function $c$ satisfies $\overline{c_w}c_v = \sigma_{uw}$.
+where $H^w(w, v)$ denotes the hitting time from $w$ to $v$, computed on a switched version of $G$ where the switching function $c$ satisfies $\overline{c_w}c_v = \sigma_{uw}$. Or, if $v \sim u$ and $\sigma_{uv} \neq 1$, then $H^v(v, v)$ denotes 
+$$
+(1 - \sigma_{uv}) \vol(G) \chi_v^* D^{-1/2} \green D^{-1/2} \chi_v.
+$$  
 \end{thm}
 \begin{proof}
 We have (justifications for numbered steps are below):
