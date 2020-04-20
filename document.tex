@@ -1485,10 +1485,10 @@ $$
 The next theorem bounds the effective resistance using the generalized effective resistance. Since the generalized effective resistance can be expressed in terms of PageRank, this allows us to estimate the effective resistance using PageRank.
 
 \begin{thm}
-If $G$ is balanced, then we have
+Let $u$ and $v$ be vertices of $G$. If $G$ is balanced, then we have
 $$
 \abs*{\beta R(u, v) - R_\alpha (u, v)}
-\leq \frac{\abs*{1 - \sigdist(u, v)}^2}{\vol(G)} + \frac{\beta^2}{\lambda_2^2}\left( \frac{1}{d_u} + \frac{1}{d_v} \right).
+\leq \left( 1 - \frac{\beta^2}{\lambda_2^2} \right) \frac{\abs*{1 - \sigdist(u, v)}^2}{\vol(G)} + \frac{\beta^2}{\lambda_2^2}\left( \frac{1}{d_u} + \frac{1}{d_v} \right),
 $$
 And if $G$ is unbalanced, then
 $$
@@ -1496,6 +1496,46 @@ $$
 \leq \frac{\beta^2}{\lambda_1^2}\left( \frac{1}{d_u} + \frac{1}{d_v} \right).
 $$
 \end{thm}
+\begin{proof}
+First assume $G$ is balanced. Then,
+\begin{align*}
+\beta R(u, v) 
+&= \beta (\chi_v - \chi_u)^* D^{-1/2} \green D^{-1/2} (\chi_v - \chi_u) \\
+&= \beta \left( \frac{\chi_v}{\sqrt{d_v}} - \frac{\chi_u}{\sqrt{d_u}} \right)^* \left( \sum_{i=2}^n \frac{1}{\lambda_i} \phi_i \phi_i^* \right) \left( \frac{\chi_v}{\sqrt{d_v}} - \frac{\chi_u}{\sqrt{d_u}} \right) \\
+&= \sum_{i=2}^n \frac{\beta}{\lambda_i} \left( \frac{\chi_v}{\sqrt{d_v}} - \frac{\chi_u}{\sqrt{d_u}} \right)^* \phi_i \left[ \left( \frac{\chi_v}{\sqrt{d_v}} - \frac{\chi_u}{\sqrt{d_u}} \right)^* \phi_i \right]^* \\
+&= \sum_{i=2}^n \frac{\beta}{\lambda_i} \abs*{\frac{\phi_i(u)}{\sqrt{d_u}} - \frac{\phi_i(v)}{\sqrt{d_v}}}^2.
+\end{align*}
+Similarly,
+$$
+R_\alpha(u, v) = \sum_{i=1}^n \frac{\beta}{\lambda_i + \beta} \abs*{\frac{\phi_i(u)}{\sqrt{d_u}} - \frac{\phi_i(v)}{\sqrt{d_v}}}^2.
+$$
+It follows that
+\begin{align*}
+&\abs*{\beta R(u, v) - R_\alpha (u, v)} \\
+&= \abs*{\left[ \sum_{i=2}^n \left( \frac{\beta}{\lambda_i} - \frac{\beta}{\lambda_i + \beta} \right) \abs*{\frac{\phi_i(u)}{\sqrt{d_u}} - \frac{\phi_i(v)}{\sqrt{d_v}}}^2 \right] - \abs*{\frac{\phi_i(u)}{\sqrt{d_u}} - \frac{\phi_i(v)}{\sqrt{d_v}}}^2} \\
+&\leq \abs*{\frac{\phi_1(u)}{\sqrt{d_u}} - \frac{\phi_1(v)}{\sqrt{d_v}}}^2 + \sum_{i=2}^n \frac{\beta^2}{\lambda_i(\lambda_i + \beta)} \abs*{\frac{\phi_i(u)}{\sqrt{d_u}} - \frac{\phi_i(v)}{\sqrt{d_v}}}^2 \\
+&\leq \abs*{\frac{\phi_1(u)}{\sqrt{d_u}} - \frac{\phi_1(v)}{\sqrt{d_v}}}^2 + \frac{\beta^2}{\lambda_2(\lambda_2 + \beta)} \sum_{i=2}^n \abs*{\frac{\phi_i(u)}{\sqrt{d_u}} - \frac{\phi_i(v)}{\sqrt{d_v}}}^2 \\
+&\leq \abs*{\frac{\phi_1(u)}{\sqrt{d_u}} - \frac{\phi_1(v)}{\sqrt{d_v}}}^2 + \frac{\beta^2}{\lambda_2^2} \left( -\abs*{\frac{\phi_1(u)}{\sqrt{d_u}} - \frac{\phi_1(v)}{\sqrt{d_v}}}^2 + \sum_{i=1}^n \abs*{\frac{\phi_i(u)}{\sqrt{d_u}} - \frac{\phi_i(v)}{\sqrt{d_v}}}^2 \right) \\
+&= \left( 1 - \frac{\beta^2}{\lambda_2^2} \right) \abs*{\frac{\phi_1(u)}{\sqrt{d_u}} - \frac{\phi_1(v)}{\sqrt{d_v}}}^2 + \frac{\beta^2}{\lambda_2^2} \sum_{i=1}^n \abs*{\frac{\phi_i(u)}{\sqrt{d_u}} - \frac{\phi_i(v)}{\sqrt{d_v}}}^2 \\
+&= \left( 1 - \frac{\beta^2}{\lambda_2^2} \right) \abs*{\frac{\phi_1(u)}{\sqrt{d_u}} - \frac{\phi_1(v)}{\sqrt{d_v}}}^2 + \frac{\beta^2}{\lambda_2^2} \sum_{i=1}^n \left[ \frac{\abs*{\phi_i(u)}^2}{d_u} + \frac{\abs*{\phi_i(v)}^2}{d_v} - 2 \Re \left( \frac{\phi_i(u) \overline{\phi_i(v)}}{\sqrt{d_u d_v}} \right) \right] \\
+&= \left( 1 - \frac{\beta^2}{\lambda_2^2} \right) \abs*{\frac{\phi_1(u)}{\sqrt{d_u}} - \frac{\phi_1(v)}{\sqrt{d_v}}}^2 + \frac{\beta^2}{\lambda_2^2} \sum_{i=1}^n \left( \frac{1}{d_u} + \frac{1}{d_v} \right),
+\end{align*}
+where the last equality holds because the columns (and therefore the rows) of the matrix $[\phi_1, \dots \phi_n]$ are orthonormal. We finish the balanced case by observing that
+\begin{align*}
+\abs*{\frac{\phi_1(u)}{\sqrt{d_u}} - \frac{\phi_1(v)}{\sqrt{d_v}}}^2
+&= \abs*{\frac{l_1(u)}{\sqrt{\vol(G)}} - \frac{l_1(v)}{\sqrt{\vol(G)}}}^2 \\
+&= \frac{\abs*{l_1(u) \overline{l_1(v)} - l_1(v) \overline{l_1(v)}}^2}{\vol(G)} \\
+&= \frac{\abs*{1 - \sigdist(u, v)}^2}{\vol(G)}.
+\end{align*}
+Finally, assume $G$ is unbalanced. Then we have
+\begin{align*}
+&\abs*{\beta R(u, v) - R_\alpha (u, v)} \\
+&= \sum_{i=1}^n \left( \frac{\beta}{\lambda_i} - \frac{\beta}{\lambda_i + \beta} \right) \abs*{\frac{\phi_i(u)}{\sqrt{d_u}} - \frac{\phi_i(v)}{\sqrt{d_v}}}^2 \\
+&\leq \frac{\beta^2}{\lambda_1(\lambda_1 + \beta)} \sum_{i=1}^n \abs*{\frac{\phi_i(u)}{\sqrt{d_u}} - \frac{\phi_i(v)}{\sqrt{d_v}}}^2 \\
+&\leq \frac{\beta^2}{\lambda_1^2} \sum_{i=1}^n \left[ \frac{\abs*{\phi_i(u)}^2}{d_u} + \frac{\abs*{\phi_i(v)}^2}{d_v} - 2 \Re \left( \frac{\phi_i(u) \overline{\phi_i(v)}}{\sqrt{d_u d_v}} \right) \right] \\
+&= \frac{\beta^2}{\lambda_1^2} \sum_{i=1}^n \left( \frac{1}{d_u} + \frac{1}{d_v} \right).
+\end{align*}
+\end{proof}
 
 The effective resistance is related to another quantity called the hitting time.
 
