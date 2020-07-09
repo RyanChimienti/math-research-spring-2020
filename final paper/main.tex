@@ -1,0 +1,763 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{mathtools}
+\usepackage{amssymb,amsmath,amsthm,amsfonts}
+\usepackage{thmtools}
+\usepackage{cleveref}
+\usepackage{changepage}
+\usepackage[margin=0.75in]{geometry}
+
+%omit eq. before equation references
+\crefformat{equation}{(#2#1#3)}
+
+%Allows me to use begin{thm}, begin{lem}, etc.%
+\newtheorem{thm}{Theorem}
+\crefname{thm}{Theorem}{Theorems}
+\newtheorem{prop}[thm]{Proposition}
+\crefname{prop}{Proposition}{Propositions}
+\newtheorem{corollary}[thm]{Corollary}
+\crefname{corollary}{Corollary}{Corollaries}
+\newtheorem{lem}[thm]{Lemma}
+\crefname{lem}{Lemma}{Lemmas}
+\declaretheoremstyle[
+	headfont=\normalfont\itshape , 
+	headindent=\parindent]{casestyle}
+\declaretheorem[
+	style=casestyle ,
+	numberwithin=thm]{case}
+\renewcommand{\thecase}{\arabic{case}} %Suppress thm # before case #
+\theoremstyle{definition}
+\newtheorem{defn}[thm]{Definition}
+\newtheorem{rem}[thm]{Remark}
+
+%Helpful Shortcuts%
+\newcommand{\N}{\mathbb N}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\Q}{\mathbb Q}
+\newcommand{\R}{\mathbb R}
+\newcommand{\C}{\mathbb C}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}
+\DeclarePairedDelimiter\norm{\lVert}{\rVert}
+\DeclarePairedDelimiter\set{\{}{\}}
+
+%Commands specifically for spectral graph theory
+\DeclareMathOperator{\pr}{pr}
+\DeclareMathOperator{\lazypr}{lazypr}
+\DeclareMathOperator{\sigdist}{sigdist}
+\DeclareMathOperator{\asd}{asd}
+\DeclareMathOperator{\vol}{Vol}
+\newcommand{\lap}{\mathcal{L}}
+\newcommand{\normadj}{\mathcal{A}}
+\newcommand{\laplace}{\Delta}
+\newcommand{\green}{\mathcal{G}}
+\newcommand{\asymgreen}{\normalfont{\textbf{G}}}
+\DeclarePairedDelimiter\inner{\langle}{\rangle} 
+
+\title{Magnetic Versions of PageRank, Hitting Time, and Effective Resistance}
+\author{Ryan Chimienti}
+\date{April 2020}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+    Classical spectral graph theory studies the relationship between the properties of a simple graph and the eigenvalues of its graph Laplacian. It also deals with other graph quantities like PageRank, hitting time, and effective resistance. In this paper, we explore how these ideas extend to magnetic graphs (graphs where each edge is assigned a complex number of modulus 1). We begin by surveying some generally useful ideas for understanding magnetic graphs: switching equivalence and balance. Then we give some known results about the magnetic version of the graph Laplacian. Finally, equipped with these tools, we are able to introduce and analyze magnetic versions of PageRank, hitting time, and effective resistance.
+\end{abstract}
+
+\section{Introduction}
+
+A \textit{simple graph} is a finite set of vertices $V \neq \varnothing$ and a set of undirected edges $E$, where each edge has the form $\set{u, v}$ for some distinct vertices $u$ and $v$. We will use $d_v$ to mean the degree of a vertex $v$ and $u \sim v$ to mean the vertices $u$ and $v$ are connected by an edge. It will sometimes be convenient to think of an edge as going in a particular direction, so we implicitly associate each graph with an oriented edge set $E^{or} := \set{(u, v), (v, u) : \set*{u, v} \in E}$. A \textit{magnetic graph} is a simple graph $(V, E)$ together with a function $\sigma : E^{or} \rightarrow S^1 := \set*{z \in \C : \abs*{z} = 1}$ which has the property $\sigma (u, v) = \overline{\sigma (v, u)}$ for all $u \sim v$. We will usually abbreviate $\sigma(u, v)$ as $\sigma_{uv}$. The whole function $\sigma$ is called the \textit{signature} of the graph, or we can refer to the signature of an individual oriented edge $(u, v)$, by which we mean $\sigma_{uv}$.
+
+Magnetic graphs arise naturally in the study of quantum mechanics on a graph, as seen in Lieb and Loss \cite{lieb}. In that paper, the signature of a magnetic graph is used to capture the properties of a magnetic field, which explains the name ``magnetic." With an eye to similar physical implications, Dodziuk and Mathai \cite{dodziuk} , Shubin \cite{shubin}, and B\'edos \cite{bedos} study (variants of) a linear operator called the discrete magnetic Laplacian. That operator is analogous to (and in Dodziuk and Mathai exactly the same as)  the magnetic version of the graph Laplacian that we will study here. 
+
+Magnetic graphs have also been studied at different levels of generality. Lange et al. \cite{lange} consider a more general version of our magnetic graphs, which have positive real edge weights (in addition to a signature) and positive real vertex values. When the edge weights and vertex values are all taken to be 1, their graphs are equivalent to ours. Elsewhere in the literature, signatures take values on an arbitrary group instead of $S^1$, with the requirement that the signature of an edge in one direction be the inverse of the signature in the other direction. Graphs with such signatures are called voltage graphs, or gain graphs. As voltage graphs generalize magnetic graphs, so do magnetic graphs generalize signed graphs, whose signatures take values on $\set*{-1, 1}$. Many of the results on balance and switching we will list for magnetic graphs were given by Harary \cite{harary} or Zaslavsky \cite{zaslavsky} in the context of signed graphs, with Zaslavsky observing that they would generalize to voltage graphs.
+
+The specific idea of extending important graph quantities like PageRank to the magnetic context has also been considered. Chung et al. \cite{sparsifyingconnectiongraph} arrive at the same definition as us for the PageRank of magnetic graphs, but a different definition for effective resistance. In that paper, graph edges are weighted with rotations of arbitrary dimension, which of course match our magnetic signatures when the dimension is 2. The authors were motivated partially by applications in image processing and electron cryomicroscopy. 
+
+\section{Balance and Switching}
+
+One of the most convenient properties a magnetic graph can have is called balance.
+
+\begin{defn}
+    A magnetic graph is \textit{balanced} if the signatures along every (directed) cycle multiply to 1.
+\end{defn}
+
+We can characterize this idea a few different ways.
+
+\begin{prop}\label{equivalent conditions for balancedness}
+    Let $G=(V, E, \sigma)$ be a magnetic graph. Then the following are equivalent.
+    \begin{enumerate}
+        \item G is balanced.
+        \item The signatures along every closed walk multiply to 1.
+        \item For every pair of connected vertices $u, v \in V$, there exists $z \in S^1$ such that along every walk from $u$ to $v$, the signatures multiply to $z$. 
+    \end{enumerate}
+\end{prop}
+\begin{proof}
+$(1 \rightarrow 2)$ Suppose $G$ is balanced, so that the product of the signatures along any cycle is 1. We will show that the signatures along every closed walk multiply to 1 using induction on the length of the walk. In the base case, a walk of length 0 vacuously has product of signatures 1. Now let $k > 0$, and assume all closed walks of length less than $k$ have signature product 1. Consider an arbitrary closed walk of length $k$. Let $w$ be the first vertex that appears twice in the walk. Then the portion of the walk from the first occurrence of $w$ to the second occurrence of $w$ can't have any duplicate vertices other than $w$. In fact, this makes that portion a cycle. By assumption the cycle has signature product 1, and deleting the cycle from the walk leaves a shorter closed walk, which by the induction hypothesis also has signature product 1. Thus, the total product of the signatures along the walk is $1 \cdot 1 = 1$, which completes the induction.  
+
+$(2 \rightarrow 3)$ Suppose the signatures along every closed walk multiply to 1. Let $u, v$ be an arbitrary pair of connected vertices. Then there is a walk $p$ from $u$ to $v$. Let $z \in S^1$ be the product of the signatures along $p$. Now consider an arbitrary walk $q$ from $u$ to $v$, with signature product $y \in S^1$. Then we may form a closed walk by joining $p$ with the reverse of $q$. The signature product along that closed walk is $z \overline{y}$, and since the walk is closed we have $z \overline{y} = 1$. Thus $y = z$, so the product of the signatures along $q$ is $z$.
+
+$(3 \rightarrow 1)$ This implication follows from a similar argument to the previous one.
+\end{proof}
+
+Because the number $z$ in condition 3 is clearly unique for each pair of connected vertices, we can make the following definition.
+
+\begin{defn}\label{defn sigdist}
+    Let $G=(V, E, \sigma)$ be a balanced magnetic graph, and let $u, v \in V$ be connected. Then the \textit{signature distance} from $u$ to $v$, written $\sigdist (u, v)$, is the product of the signatures along every walk from $u$ to $v$.
+\end{defn}
+
+As far as I know, the term ``signature distance" is new to this paper, but certainly the idea is well-known. We call it a distance because, intuitively, it is what one must travel through to get from one vertex to another. Now we turn our attention to switching, which is a natural transformation that can be applied to magnetic graphs.
+
+\begin{defn}
+    If $G=(V, E, \sigma)$ is a magnetic graph, then a function $c: V \rightarrow S^1$ is called a \textit{switching function} for $G$. We may write $c_v$ as shorthand for $c(v)$.
+\end{defn}
+
+\begin{defn}
+    Let $G = (V, E, \sigma)$ be a magnetic graph, and let $c$ be a switching function for $G$. Then $G$ \textit{switched by} $c$ is the magnetic graph with the same edges and vertices, whose signature $\tau$ is given by
+    $$\tau_{vw} = \overline{c_v}\sigma_{vw}c_w$$
+    for all $v \sim w$.
+\end{defn}
+
+\begin{defn}
+    A magnetic graph $G$ is \textit{switching equivalent} to a magnetic graph $H$ if there exists a switching function $c$ for $G$ such that $G$ switched by $c$ is $H$.   
+\end{defn}
+
+\begin{prop}
+Switching equivalence is an equivalence relation.
+\end{prop}
+
+The following proposition means that we can often work with connected magnetic graphs, and the results will automatically extend to disconnected magnetic graphs.
+
+\begin{prop}\label{switching equivalence of connected components}
+    Let $G^\sigma = (V, E, \sigma)$ and $G^\tau = (V, E, \tau)$ be two magnetic graphs with the same vertices and edges. Then $G^\sigma$ and $G^\tau$ are switching equivalent if and only if each connected component of $G^\sigma$ is switching equivalent to the corresponding connected component of $G^\tau$.
+\end{prop}
+
+Now, we give a key fact about switching equivalence. This proposition was proved by Zaslavsky \cite{zaslavsky} in the context of signed graphs, essentially the same way we prove it here. It was also noted to extend to magnetic graphs in \cite{liu}. We nevertheless include a proof because the approach is enlightening, specifically in the ($\leftarrow$) direction.
+
+\begin{prop}\label{closed walk characterization of switching equivalence}
+    Let $G^\sigma = (V, E, \sigma)$ and $G^\tau = (V, E, \tau)$ be two magnetic graphs with the same vertices and edges. Then $G^\sigma$ and $G^\tau$ are switching equivalent if and only if along every cycle, the product of the signatures of $G^\sigma$ equals the product of the signatures of $G^\tau$.
+\end{prop}
+\begin{proof}
+    ($\rightarrow$) Suppose $G^\sigma$ and $G^\tau$ are switching equivalent. Then there is a switching function $c: V \rightarrow S^1$ that switches $G^\sigma$ to $G^\tau$. Let $v_1, \dots, v_k, v_1$ be the consecutive vertices along a cycle. Then,
+    \begin{align*}
+        \sigma_{v_1 v_2} \sigma_{v_2 v_3} \dots \sigma_{v_{k} v_1}
+        &= (\overline{c_{v_1}} \sigma_{v_1 v_2} c_{v_2}) (\overline{c_{v_2}} \sigma_{v_2 v_3} c_{v_3}) \dots (\overline{c_{v_k}} \sigma_{v_k v_1} c_{v_1}) \\
+        &= \tau_{v_1 v_2} \tau_{v_2 v_3} \dots \tau_{v_{k} v_1}.
+    \end{align*} 
+    Therefore, along every cycle, the product of the signatures of $G^\sigma$ equals the product of the signatures of $G^\tau$.
+    
+    $(\leftarrow)$ Suppose that along every cycle, the product of the signatures of $G^\sigma$ equals the product of the signatures of $G^\tau$. Because of \cref{switching equivalence of connected components}, we may assume the graph $(V, E)$ is connected. Select a rooted spanning tree $S$. For $G^\sigma$, begin at the root of $S$ and work outwards to choose a switching function that sends all of the signatures in $S$ to 1. Now obtain a switching function that does the same for $G^\tau$. We argue that the switched versions of $G^\sigma$ and $G^\tau$ are identical, which will complete the proof that the original graphs were switching equivalent. Clearly the edges in $S$ are identical, since they all have signature 1. It remains to consider an edge $e \notin S$. That edge forms a cycle with the edges of $S$. The cycle had the same signature product $p$ in $G^\sigma$ and $G^\tau$ prior to switching, and by the $(\rightarrow)$ direction, switching preserves products along cycles. Therefore, the cycle still has product $p$ in the switched versions of $G^\sigma$ and $G^\tau$. It follows that the signature of $e$ equals $p$ in both the switched version of $G^\sigma$ and the switched version of $G^\tau$, so we are done.  
+\end{proof}
+
+We note a few nice consequences of this characterization of switching equivalence:
+
+\begin{corollary}\label{balanced iff switching equivalent to simple graph}
+    A magnetic graph is balanced if and only if it is switching equivalent to the graph with all signatures 1.
+\end{corollary}
+
+\begin{corollary}
+    If a magnetic graph is switching equivalent to a balanced magnetic graph, then it is also balanced.  
+\end{corollary}
+
+\begin{corollary}
+    Any two balanced magnetic graphs with the same vertices and edges are switching equivalent. 
+\end{corollary}
+
+\section{The Magnetic Laplacian and its Spectrum}
+
+Given a magnetic graph $(V, E, \sigma)$, its \textit{discrete magnetic Laplacian} is a linear operator $L$ on the space of functions $f: V \rightarrow \C$, where $(L f)(u) := \sum_{v \sim u} (f(u) - \sigma_{uv} f(v))$. For simplicity, we may call $L$ simply the Laplacian. We can also view $L$ as a matrix. Working in terms of the standard basis and indexing by the vertices, we get the matrix 
+$$
+L(u, v) := 
+\begin{cases}
+d_u \quad & \mbox{ if $u = v$} \\
+-\sigma_{uv} \quad & \mbox{ if $u \sim v$} \\
+0 \quad & \mbox{ otherwise} \\
+\end{cases}.
+$$
+In the case where all the signatures are 1, this matches the classical definition of the graph Laplacian for the underlying simple graph. Thus, the results we give about magnetic Laplacians will reduce to results about classical Laplacians when the graph has all signatures 1. We will start by showing that the magnetic Laplacian is positive-semidefinite. Recall the definition:
+
+\begin{defn}
+    Let $B$ be a linear operator on a complex inner product space $W$. Then $B$ is \textit{positive-semidefinite} if it is Hermitian and $$\inner*{ Bf, f } \geq 0$$ for every $f \in W$. (Note that $\inner*{ Bf, f }$ is automatically real since $B$ is Hermitian.)
+\end{defn}
+
+In this paper, the inner product space is always the set of functions from a vertex set $V$ into $\C$, and the inner product is always defined by $\inner{f, g} := \sum_{u \in V} f(u) \overline{g(u)}$. We want the magnetic Laplacian to be positive-semidefinite because then it will have nice eigenfunctions and eigenvalues, as the following proposition shows.
+
+\begin{prop}
+    If $B$ is a positive-semidefinite operator on a complex inner product space $W$, then there exists an orthonormal basis for $W$ made up of eigenfunctions of $B$, and the eigenvalues are real and nonnegative.  
+\end{prop}
+
+The next proof is modeled after Jiang's argument for the non-magnetic case (see pages 3 and 4 in \cite{jiang}).
+
+\begin{prop}\label{Laplacian is positive-semidefinite}
+    Let $L$ be the magnetic Laplacian of a magnetic graph $(V, E, \sigma)$. Then $L$ is positive-semidefinite.
+\end{prop}
+\begin{proof}
+    From the matrix representation of $L$, we can see that $L = L^*$, so $L$ is Hermitian. Now for each edge $\set{u, v} \in E$, we define an operator $L_{\set{u, v}}$ as follows. For every function function $f:V \rightarrow \C$, we let $L_{\set{u, v}} f$ take the value 0 at every vertex except $u$ and $v$. But at $u$ and $v$ we let 
+    \begin{align*}
+        (L_{\set{u, v}} f) (u) &:= f(u) - \sigma_{uv} f(v) \\
+        (L_{\set{u, v}} f) (v) &:= f(v) - \sigma_{vu} f(u).
+    \end{align*}
+    With these operators defined, let $f: V \rightarrow \C$ be arbitrary. Then we have
+    $$
+    \inner{L f, f} 
+    = \inner*{\sum_{\set*{u,v} \in E} (L_{\set{u, v}} f), f}
+    = \sum_{\set*{u,v} \in E} \inner*{L_{\set{u, v}} f, f}.
+    $$
+    So to show $L$ is positive-semidefinite, it suffices to show $\inner*{L_{\set{u, v}} f, f}$ is real and nonnegative for each $\set*{u, v} \in E$. Indeed, we have
+    \begin{align*}
+        \inner*{L_{\set{u, v}} f, f}
+        &= (L_{\set{u, v}} f)(u) \overline{f(u)} + (L_{\set{u, v}} f)(v) \overline{f(v)} \\
+        &= \left( f(u) - \sigma_{uv} f(v) \right) \overline{f(u)} + \left( f(v) - \sigma_{vu} f(u) \right) \overline{f(v)} \\
+        &= ( f(u) - \sigma_{uv} f(v) ) \overline{(f(u) - \sigma_{uv} f(v))} \\
+        &= \abs*{f(u) - \sigma_{uv} f(v)}^2.
+    \end{align*}
+\end{proof}
+
+We have now established that the magnetic Laplacian has a nice spectrum of positive real eigenvalues. In fact, the spectrum doesn't change when switching functions are applied to the graph.
+
+\begin{prop}\label{switching preserves spectrum}
+    Let $G^\sigma = (V, E, \sigma)$ and $G^\tau = (V, E, \tau)$ be magnetic graphs with the same vertices and edges, and assume they are switching equivalent. Then their magnetic Laplacians have the same spectrum.
+\end{prop}
+\begin{proof}
+    Let $L^\sigma$ and $L^\tau$ be the magnetic Laplacian matrices for $G^\sigma$ and $G^\tau$. Let $c$ be a switching function that takes $G^\sigma$ to $G^\tau$. Define $C$ to be the diagonal matrix (indexed by the vertices) with $C(u, u) = c_u$ for each $u \in V$. Then $C^{-1}$ is the diagonal matrix with $C^{-1}(u, u) = \overline{c_u}$ for each $u \in V$. It follows that $L^\tau = C^{-1} L^{\sigma} C$, so $L^\sigma$ and $L^\tau$ are similar matrices, which means they have the same spectrum.
+\end{proof}
+
+\section{The Eigenvalue 0 of the Magnetic Laplacian}
+
+In this section we identify the magnetic graphs for which the magnetic Laplacian has 0 as an eigenvalue, and we describe the corresponding eigenfunctions.
+
+\begin{lem}\label{average characterization of null space of Laplacian}
+    Let $G := (V, E, \sigma)$ be a magnetic graph with magnetic Laplacian $L$. Let $f:V \rightarrow \C$. Then $L f$ is the zero function if and only if 
+    $$
+    f(u) = \frac{1}{d_u} \sum_{v \sim u} \sigma_{uv} f(v)
+    $$
+    for every $u \in V$ with $d_u \neq 0$.
+\end{lem}
+\begin{proof}
+    We have:
+    \begin{alignat*}{2}
+        &(L f)(u) = 0 & \quad\quad &\text{for every $u \in V$} \\
+        \iff\quad &\sum_{v \sim u}(f(u) - \sigma_{uv}f(v)) = 0 & &\text{for every $u \in V$} \\
+        \iff\quad &d_u f(u) - \sum_{v \sim u} \sigma_{uv}f(v) = 0 & &\text{for every $u \in V$} \\
+        \iff\quad &f(u) = \frac{1}{d_u} \sum_{v \sim u} \sigma_{uv}f(v) & &\text{for every $u \in V$ with $d_u \neq 0$}.
+    \end{alignat*}
+\end{proof}
+
+The previous lemma says that the magnetic Laplacian sends a function to 0 iff that function assigns each vertex a value which is the signature-weighted average of the neighboring values. The next theorem strengthens that condition. Not only are the vertex values averages of the neighboring values; they are exactly equal to the neighboring values (in a signature-weighted sense).
+
+\begin{thm}\label{equality characterization of null space of Laplacian}
+    Let $G := (V, E, \sigma)$ be a magnetic graph with magnetic Laplacian $L$. Let $f:V \rightarrow \C$. Then $L f$ is the zero function if and only if $f(u) = \sigma_{uv} f(v)$ whenever $u \sim v$.
+\end{thm}
+\begin{proof}
+    $(\leftarrow)$ Suppose $f(u) = \sigma_{uv} f(v)$ whenever $u \sim v$. Then, for every $u \in V$ we have
+    $$
+    (L f)(u) 
+    = \sum_{v \sim u}(f(u) - \sigma_{uv} f(v))
+    = \sum_{v \sim u}(f(u) - f(u))
+    = 0.
+    $$ 
+    
+    $(\rightarrow)$ Suppose $L f$ is the zero function. We first argue that whenever $u$ and $v$ are vertices in the same connected component of $G$, we have $\abs*{f(u)} = \abs*{f(v)}$. To see this, take an arbitrary connected component of $G$, and choose a vertex $m$ in that component which maximizes $\abs*{f(m)}$. If $d_m = 0$, then $m$ is the only vertex in the component, so our conclusion holds trivially. On the other hand, if $d_m \neq 0$, then we can apply \cref{average characterization of null space of Laplacian} to get
+    $$
+        \abs*{f(m)} 
+        = \abs*{\frac{1}{d_m} \sum_{l \sim m} \sigma_{ml} f(l)} 
+        \leq \frac{1}{d_m} \sum_{l \sim m} \abs*{\sigma_{ml} f(l)} 
+        = \frac{1}{d_m} \sum_{l \sim m} \abs*{f(l)}.
+    $$
+    That is, $\abs*{f(m)}$ is no greater than the mean of the values $\abs{f(l)}$ where $l \sim m$. But our choice of $m$ ensures that $\abs*{f(m)} \geq \abs*{f(l)}$ for each $l \sim m$, so in fact $\abs*{f(m)} = \abs*{f(l)}$ for each $l \sim m$. It follows that any vertex $l$ which is adjacent to $m$ also maximizes the quantity $\abs*{f(l)}$, so we can apply the same argument to each $l$, repeating the process until we conclude that $\abs*{f(u)} = \abs*{f(v)}$ for every pair of vertices $u, v$ in the connected component.
+    
+    Now fix vertices $u \sim v$. We want to prove that $f(u) = \sigma_{uv} f(v)$. From the previous paragraph, we already have that
+    $$\abs*{f(u)} = \abs*{f(v)} = \abs*{\sigma_{uv} f(v)},$$
+    so it suffices to show $f(u)$ differs from $\sigma_{uv} f(v)$ by a positive real factor. Observe that 
+    \begin{align*}
+        \abs*{\sum_{l \sim u} \sigma_{ul}f(l)} &= \abs*{d_u f(u)} && \text{(by \cref{average characterization of null space of Laplacian})} \\
+        &= d_u \abs*{f(u)} \\
+        &= \sum_{l \sim u} \abs*{f(u)} \\
+        &= \sum_{l \sim u} \abs*{f(l)} && \text{(by the previous paragraph)} \\
+        &= \sum_{l \sim u} \abs*{\sigma_{ul} f(l)}.
+    \end{align*}
+    Therefore, assuming $\sigma_{uv} f(v) \neq 0$ (the other case is trivial), we may conclude that 
+    $$\sum_{l \sim u} \sigma_{ul}f(l) = r (\sigma_{uv}f(v))$$
+    for some positive real $r$. Then, applying \cref{average characterization of null space of Laplacian} once more, we have
+    $$
+        f(u) 
+        = \frac{1}{d_u} \sum_{l \sim u} \sigma_{ul}f(l)
+        = \frac{1}{d_u} r (\sigma_{uv} f(v)),
+    $$
+    so $f(u)$ differs from $\sigma_{uv} f(v)$ by a positive real factor, as desired.
+\end{proof}
+
+\begin{prop}\label{multiplicity of 0 for connected balanced graph}
+    If $G$ is a connected and balanced magnetic graph, then 0 is an eigenvalue of its magnetic Laplacian with multiplicity 1.
+\end{prop}
+\begin{proof}
+    Since $G$ is balanced, \cref{balanced iff switching equivalent to simple graph} gives that it is switching equivalent to the trivial graph with all signatures 1. Then by \cref{switching preserves spectrum}, the spectrum of the trivial graph's magnetic Laplacian matches the spectrum of $G$'s magnetic Laplacian. So we only have to show that 0 is an eigenvalue with multiplicity 1 for the magnetic Laplacian of the trivial graph. Indeed, it is clear from \cref{equality characterization of null space of Laplacian} that the kernel of that Laplacian is exactly the one-dimensional space of constant functions. 
+\end{proof}
+
+Conversely to the previous proposition, if a connected graph has 0 as an eigenvalue of its magnetic Laplacian, then it must be balanced. It follows that $\sigdist$ is defined on any pair of vertices (see \cref{defn sigdist}), and in fact $\sigdist$ is related to the eigenfunctions with eigenvalue 0.
+
+\begin{prop}\label{properties of connected graph with 0 eigenvalue}
+    Let $G = (V, E, \sigma)$ be a connected graph. If 0 is an eigenvalue of the magnetic Laplacian, then $G$ is balanced. Moreover, for any nonzero $f \in \ker L$ and pair of vertices $u, v \in V$, we have 
+    $$
+        f(u) \overline{f(v)} = \sigdist (u, v).
+    $$
+\end{prop}
+\begin{proof}
+We will prove balance by the third characterization in \cref{equivalent conditions for balancedness}. Namely, we will show that for every pair of vertices $u, v \in V$, there exists a $z \in S^1$ such that the signatures along every walk from $u$ to $v$ multiply to $z$. To that end, let $u, v \in V$. Choose $z$ to be $f(u) \overline{f(v)}$. Let $u \rightarrow w_1 \rightarrow w_2 \rightarrow \dots \rightarrow w_k \rightarrow v$ be an arbitrary walk from $u$ to $v$. Applying \cref{equality characterization of null space of Laplacian} repeatedly, we have
+\begin{align*}
+    f(u) 
+    &= \sigma_{u w_1} f(w_1) \\
+    &= \sigma_{u w_1} (\sigma_{w_1 w_2} f(w_2)) \\
+    &\vdots \\
+    &= \sigma_{u w_1} \sigma_{w_1 w_2} \dots (\sigma_{w_k v} f(v)).
+\end{align*}
+Multiplying both sides by $\overline{f(v)}$, we find that $z = f(u) \overline{f(v)}$ is the product of the signatures along the walk, as desired. Furthermore, this confirms that $z \in S^1$. Now recall that $\sigdist(u, v)$ is defined to be the product of the signatures along every walk from $u$ to $v$, so immediately we have $\sigdist (u, v) = f(u) \overline{f(v)}$.
+\end{proof}
+
+\section{Magnetic PageRank}
+
+Let $G=(V, E, \sigma)$ be a magnetic graph. Then $G$'s \textit{magnetic PageRank matrix} is the matrix $W$ given by
+$$
+W(u, v) := 
+\begin{cases}
+\frac{\sigma_{uv}}{d_v} &\text{ if } u \sim v \\
+0 &\text{ if } u \not\sim v
+\end{cases}
+$$
+for all $u, v \in V$.
+
+In the case where $G$ has all signatures 1, this is the non-magnetic PageRank matrix for the underlying simple graph. Viewed as a linear operator on the space of functions $f: V \rightarrow \R$, the non-magnetic PageRank matrix $W^\prime$ has a nice interpretation. Suppose a person is standing on a vertex of $G$, but we don't know which vertex. Let $g:V \rightarrow \R$, with $g(u)$ being the probability that our person is standing on vertex $u$. Then $(W^\prime g)(u)$ is the probability that he is standing on vertex $u$, after he has stepped away from his original vertex along a random edge. If we apply $W^\prime$ many times in a row, the probabilities converge to some ``PageRank vector" $x:V \rightarrow \R$ satisfying $W^\prime x = x$, where $x(u)$ is intuitively the probability that a walker starting anywhere will be at vertex $u$ after a large number of random steps. If the vertices of the graph represent webpages and the edges represent links between the pages, then the probabilities in $x$ can serve as rankings of the importance of each webpage. This is the idea behind the PageRank algorithm originally given by Brin and Page in \cite{brin}.
+
+We will show that our magnetic PageRank matrix shares some of the properties of the non-magnetic PageRank matrix, starting with the following proposition:
+
+\begin{prop}\label{operator norm of PageRank matrix leq 1}
+Let $G=(V, E, \sigma)$ be a magnetic graph with magnetic PageRank matrix $W$. Then $\norm{W}_1 \leq 1$, where $\norm*{\cdot}_1$ is the operator norm induced by the vector 1-norm (which is also denoted $\norm*{\cdot}_1$).
+\end{prop}
+\begin{proof}
+It suffices to show that for any $x: V \rightarrow \C$ with $\norm{x}_1 = 1$, we have $\norm{W x}_1 \leq 1$. Indeed, letting $W_{\bullet v}$ stand for the $v$th column vector of $W$, we have
+\begin{align*}
+\norm{W x}_1 &= \norm*{\sum_{v \in V} x(v) W_{\bullet v}}_1 \\
+&\leq \sum_{v \in V} \norm*{x(v) W_{\bullet v}}_1 \\
+&= \sum_{v \in V} \left( \abs*{x(v)} \norm*{W_{\bullet v}}_1 \right) \\
+&= \sum_{v \in V} \left( \abs*{x(v)} \sum_{u \in V} \abs*{W_{u v}} \right) \\
+&= \sum_{v \in V} \left( \abs*{x(v)} \sum_{u \sim v} \abs*{\frac{\sigma_{uv}}{d_v}} \right) \\
+&= \sum_{v \in V} \left( \abs*{x(v)} \frac{1}{d_v} \sum_{u \sim v} \abs*{\sigma_{uv}} \right) 
+= \sum_{v \in V} \left( \abs*{x(v)} \frac{1}{d_v} d_v \right) 
+= \sum_{v \in V} \abs*{x(v)} 
+= \norm*{x}_1 
+= 1.
+\end{align*}
+\end{proof}
+
+We have said that the non-magnetic PageRank matrix can be used to define a PageRank vector made up of probabilities that a random walker on the graph will occupy a particular vertex after a large number of steps, but the non-magnetic PageRank matrix can also be used to define a ``personalized PageRank vector." This too can be thought of as a vector of probabilities that a random walker ends up at a particular vertex, but instead of always stepping along a random edge, the walker will sometimes (with probability $\alpha$) jump to a random vertex drawn from a probability distribution $s$. We can give a magnetic definition of this personalized PageRank vector, following Chung's non-magnetic definition in \cite{pagerankgreen} (page 7).
+
+\begin{defn}
+Let $G$ be a magnetic graph with magnetic PageRank matrix $W$. Then the graph's \textit{personalized PageRank vector} with \textit{jumping constant} $\alpha \in (0, 1)$ and \textit{seed vector} $s: V \rightarrow \C$, written $\pr(\alpha, s)$, is defined to be the unique vector $x: V \rightarrow \C$ satisfying
+$$
+\alpha s + (1 - \alpha) W x = x.
+$$
+\end{defn}
+
+To show that our definition is valid, we need to show that there is indeed a unique $x : V \rightarrow \C$ satisfying that equation. The equation can be rewritten as 
+\begin{equation}
+\alpha s = (I - (1 - \alpha)W)x,\label{eq: PageRank rearranged}
+\end{equation}
+so it suffices to show $(I - (1 - \alpha)W)$ is invertible. Since $\norm{W}_1 \leq 1$, we have $\norm{(1 - \alpha)W}_1 < 1$. Therefore, $(I - (1 - \alpha)W)$ is invertible as desired, and moreover 
+$$
+(I - (1 - \alpha)W)^{-1} = \sum_{k=0}^{\infty} ((1 - \alpha) W)^k = \sum_{k=0}^{\infty} (1 - \alpha)^k W^k.
+$$ 
+Multiplying both sides of \cref{eq: PageRank rearranged} by $(I - (1 - \alpha)W)^{-1}$ gives the following fact.
+
+\begin{prop}
+Let $G = (V, E, \sigma)$ be a magnetic graph with magnetic PageRank matrix $W$. Let $\alpha \in (0, 1)$ and $s: V \rightarrow \C$. Then, $$\pr(\alpha, s) = \alpha \left( \sum_{k=0}^{\infty} (1 - \alpha)^k W^k \right) s.$$
+\end{prop}
+
+We can also define a ``lazy" variant of the magnetic PageRank matrix, which is sometimes easier to work with.
+
+\begin{defn}
+Let $G$ be a magnetic graph with magnetic PageRank matrix $W$. Then the graph's (magnetic) \textit{lazy PageRank matrix} is $Z := (I + W)/2$.
+\end{defn}
+
+If we can show that $\norm{Z}_1 \leq 1$, then $Z$ will be associated with a personalized PageRank vector just like $W$. Indeed, we have
+$$
+\norm{Z}_1 = \norm{(I+W)/2}_1 
+\leq \frac{1}{2} \norm{I}_1 + \frac{1}{2} \norm{W}_1 
+\leq \frac{1}{2} (1) + \frac{1}{2} (1) 
+= 1.
+$$
+So we can make the following definition:
+
+\begin{defn}
+Let $G$ be a magnetic graph with (magnetic) lazy PageRank matrix $Z$. Then the graph's \textit{lazy personalized PageRank vector} with \textit{jumping constant} $\alpha \in (0, 1)$ and \textit{seed vector} $s: V \rightarrow \C$, written \lazypr$(\alpha, s)$, is defined to be the unique vector $x: V \rightarrow \C$ satisfying
+$$
+\alpha s + (1 - \alpha) Z x = x.
+$$
+\end{defn}
+
+\section{Magnetic PageRank as a Green's Function}
+
+From the previous section, we have that for fixed $\alpha$, the value of $\lazypr(\alpha, s)$ is linear with respect to $s$. In this section, we will show that the matrix for this linear transformation is in fact a variant on the inverse of the magnetic Laplacian, which is called a Green's function. Our argument is modeled after section 4 of \cite{pagerankgreen}. 
+
+Throughout this section, let $G=(V, E, \sigma)$ be a magnetic graph on $n$ vertices, with magnetic PageRank matrix $W$, magnetic lazy PageRank matrix $Z$, and magnetic Laplacian $L$. We note that $W = A D^{-1}$ and $L = D - A$, where $D$ is the diagonal matrix with $D(u, u) = d_u$ and $A$ is the magnetic adjacency matrix. That is, $A(u, v) = \sigma_{uv}$ if $u \sim v$ and 0 otherwise. Assume $G$ is connected and has at least 2 vertices, so that $D$ is invertible. Fix a jumping constant $\alpha \in (0, 1)$, and let $$\beta := \frac{2 \alpha}{1 - \alpha}.$$
+It will be more convenient going forward to work with normalized versions of some of our matrices, which we now define.
+
+\begin{defn} 
+The \textit{normalized magnetic Laplacian} of $G$ is
+$$
+\lap := D^{-1/2} L D^{-1/2}. 
+$$
+\end{defn}
+\begin{defn}
+The \textit{normalized magnetic adjacency matrix} of $G$ is
+$$
+\normadj := D^{-1/2} A D^{-1/2}. 
+$$
+\end{defn}
+
+Normalizing the Laplacian and adjacency matrix in this way is nice, because instead of the unnormalized relationship $L = D - A$, we have the cleaner relationship $$\lap = I - \normadj.$$ Moreover, we have a nice relationship with the PageRank matrix: $$W = D^{1/2} \normadj D^{-1/2},$$ so $W$ can be viewed as an ``asymmetric" (or more precisely non-Hermitian) version of $\normadj$. This idea of working with asymmetric versions of Hermitian matrices is important because it bridges the gap from the asymmetric PageRank world of $W$ and $Z$ to the symmetric Laplacian world of $\normadj$ and $\lap$.
+
+Since $L$ is positive-semidefinite and $D^{-1/2}$ is Hermitian, $\lap$ is positive semidefinite too. Therefore $\lap$ has $n$ real, nonnegative eigenvalues. Going forward we will refer to these as $$0 \leq \lambda_1 \leq \dots \leq \lambda_n$$ with the corresponding orthonormal eigenfunctions $$\phi_1, \dots, \phi_n.$$
+
+\begin{defn}
+The \textit{$\beta$-normalized magnetic Laplacian} is $$\lap_\beta := \beta I + \lap.$$
+\end{defn}
+
+We can see that $\lap_\beta$ shares the eigenfunctions $\phi_1, \dots, \phi_n$ with $\lap$, except the corresponding eigenvalues of $\lap_\beta$ are $\beta + \lambda_1, \dots, \beta + \lambda_n$. Since $\beta > 0$, we can conclude that $\lap_\beta$ does not have 0 as an eigenvalue, and is therefore invertible. So we can make the following definition.
+
+\begin{defn}
+The \textit{$\beta$-normalized magnetic Green's function} is $$\green_\beta := \lap_\beta^{-1}.$$
+\end{defn}
+
+Next we want to define an asymmetric version of the Green's Function. Asymmetrizing the Green's function will help us relate it to PageRank, as we discussed earlier. We asymmetrize the Green's function the same way we asymmetrized $\normadj$ to get $W$.
+
+\begin{defn}
+The \textit{asymmetric $\beta$-normalized magnetic Green's function} is
+$$
+\asymgreen_\beta := D^{1/2} \green_\beta D^{-1/2}.
+$$
+\end{defn}
+
+There is another way to arrive at this definition. We could follow the same procedure we used to define $\green_\beta$, where we start with $\lap$, add $\beta I$, and then take the inverse; except instead we start with an asymmetric version of $\lap$. The asymmetric version of $\lap$ we need is the following.
+
+\begin{defn}
+The \textit{magnetic Laplace operator} is the matrix
+$$
+\laplace := D^{1/2} \lap D^{-1/2}.
+$$
+\end{defn}
+
+If we were to define $\asymgreen_\beta$ using $\laplace$, taking the same approach as for $\green_\beta$, we would want to say $$\asymgreen_\beta = \left( \beta I + \laplace \right)^{-1}.$$ Indeed, this definition is equivalent to ours, as the next proposition shows.
+
+\begin{prop}\label{Asymmetric Green's in terms of Laplace operator}
+$\beta I + \laplace$ is invertible, and $\asymgreen_\beta = \left( \beta I + \laplace \right)^{-1}.$
+\end{prop}
+\begin{proof}
+Note that $\laplace$ has $n$ nonnegative eigenvalues because it is similar to $\lap$. Since $\beta > 0$, it follows that $\beta I + \laplace$ has $n$ nonzero eigenvalues, meaning $\beta I + \laplace$ is invertible. Finally, we have
+\begin{align*}
+\left( \beta I + \laplace \right)^{-1}
+&= \left( \beta I + D^{1/2} \lap D^{-1/2} \right)^{-1} \\
+&= \left(D^{1/2} \left( \beta I + \lap \right) D^{-1/2} \right)^{-1} \\
+&= \left(D^{1/2} \lap_\beta D^{-1/2} \right)^{-1} \\
+&= D^{1/2} \green_\beta D^{-1/2} \\
+&= \asymgreen_\beta.
+\end{align*}
+\end{proof}
+
+Since $\laplace$ is an asymmetric version of $\lap$ and $W$ is an asymmetric version of $\normadj$, we naturally have the following relationship.
+
+\begin{prop}\label{Laplace operator and PageRank}
+We have $\laplace = I - W.$
+\end{prop}
+\begin{proof}
+$$
+\laplace 
+= D^{1/2} \lap D^{-1/2} 
+= D^{1/2} (I - \normadj) D^{-1/2}
+= I - D^{1/2} \normadj D^{-1/2}
+= I - W.
+$$
+\end{proof}
+
+Finally, we can describe the matrix for the linear transformation $\lazypr(\alpha, s)$.
+
+\begin{thm}
+For any seed vector $s \in \C^n$, we have
+$$
+\lazypr (\alpha, s) = \beta \asymgreen_\beta s.
+$$
+\end{thm}
+\begin{proof}
+\begin{align*}
+\frac{\lazypr (\alpha, s)}{\beta} 
+&= \frac{\alpha}{\beta} \left[ I - (1 - \alpha)Z \right]^{-1} s \\ 
+&= \left( \frac{\beta}{\alpha} I - 2 Z \right)^{-1} s \\
+&= \left[ \left( \beta + 2 \right) I - 2 Z \right]^{-1} s \\
+&= \left[ \left( \beta + 2 \right) I - (I + W) \right]^{-1} s \\
+&= \left[ \beta I + (I - W) \right]^{-1} s \\
+&= \left( \beta I + \laplace \right)^{-1} s &&\text{(by \cref{Laplace operator and PageRank})} \\
+&= \asymgreen_\beta s &&\text{(by \cref{Asymmetric Green's in terms of Laplace operator})}.
+\end{align*}
+\end{proof}
+
+\section{Magnetic Hitting Time and Effective Resistance}
+
+In this section we will define and relate magnetic versions of the hitting time and effective resistance, which are important quantities in spectral graph theory. We will base our definitions and results off of sections 3 and 7 of Chung and Zhao \cite{pagerankrandomwalks}, which considers non-magnetic versions of these quantities.
+
+We will continue using the variables and assumptions from the previous section. We will add the notation $\vol (G)$ to mean the sum of all the degrees of the vertices in $G$. We will also frequently refer to the \textit{characteristic function} of a vertex $u$, which is the function $\chi_u: V \rightarrow \C$ that takes the value 1 at $u$ and the value 0 everywhere else. Moreover, for this section we will need a more explicit understanding of the vector $\phi_1$ in the case that $G$ is balanced. For that purpose, we define a vector $l_1 : V \rightarrow \C$ by 
+$$
+l_1 := \frac{\sqrt{n}}{\norm*{D^{-1/2} \phi_1}} D^{-1/2} \phi_1. 
+$$
+Then if $G$ is balanced, $l_1$ allows us to nicely describe $\phi_1$ per the following lemma.
+
+\begin{lem}\label{eigenvectors of normalized lap via eigenvectors of lap}
+Suppose $G$ is balanced. Then,
+\begin{enumerate}
+\item $l_1 \in \ker L$
+\item Every entry of $l_1$ belongs to $S^1$
+\item For any vertex $v \in V$, we have 
+$$
+\phi_1(v) = \frac{\sqrt{d_v}}{\sqrt{\vol(G)}} l_1(v).
+$$
+\end{enumerate}
+\end{lem}
+\begin{proof}
+Since $G$ is balanced, $\lap$ has 0 as an eigenvalue, so $\lap \phi_1 = 0.$ Therefore,
+$$
+D^{-1/2} L l_1 = \frac{\sqrt{n}}{\norm*{D^{-1/2} \phi_1}} \lap \phi_1 = 0,
+$$
+so $l_1 \in \ker L$ as desired. By \cref{properties of connected graph with 0 eigenvalue} all the entries of $l_1$ have the same modulus. But $\norm{l_1} = \sqrt{n}$, so in fact all the entries of $l_1$ have modulus 1, as desired. Finally, observe that for any vertex $v$ of $G$, we have
+$$
+\phi_1(v)
+= \chi_v^* \phi_1
+= \chi_v^* \frac{D^{1/2} l_1}{\norm{D^{1/2} l_1}} 
+= \chi_v^* \frac{D^{1/2} l_1}{\sqrt{\vol(G)}}
+= \frac{\sqrt{d_v}}{\sqrt{\vol(G)}} \chi_v^* l_1
+= \frac{\sqrt{d_v}}{\sqrt{\vol(G)}} l_1(v).
+$$
+\end{proof}
+
+To define the magnetic effective resistance, we first need to define the unnormalized magnetic Green's function $\green$.
+
+\begin{defn}
+The \textit{magnetic Green's function} is 
+$$
+\green := \sum_{\substack{1 \leq i \leq n \\ \lambda_i \neq 0}} \frac{1}{\lambda_i} \phi_i \phi_i^*.
+$$
+\end{defn}
+
+We can view $\green$ as a ``pseudoinverse" of $\lap$ (to be technical, the Moore-Penrose pseudoinverse). If our graph $G$ is unbalanced, meaning $\lap$ is invertible, then $\green = \lap^{-1}$. On the other hand, if $G$ is balanced, meaning $\lap$ has nullity 1, then $\green$ acts like an inverse of $\lap$ in the orthogonal complement of $\ker \lap$, but still takes the vectors in $\ker \lap$ to 0. Thinking along these lines, we can see that $\green$ is independent of the choice of $\phi_i$'s, so the magnetic Green's function is well-defined for any graph. $\green$ has the same orthonormal eigenfunctions $\phi_1, \dots, \phi_n$ as $\lap$, and all its eigenvalues are real and nonnegative. Thus, $\green$ is positive-semidefinite. 
+
+We are now ready to define a magnetic version of the effective resistance. The classical effective resistance is a way to measure how robustly two vertices are connected in a non-magnetic graph, with relevance to the theory of electrical circuits. To obtain a definition for the magnetic effective resistance, we borrow an expression for the classical effective resistance from $\cite{pagerankrandomwalks}$ and replace the classical Green's function with our magnetic Green's function.
+
+\begin{defn}
+Let $u$ and $v$ be vertices of $G$. Then the  \textit{magnetic effective resistance} between $u$ and $v$ is 
+$$
+R(u, v) := (\chi_v - \chi_u)^* D^{-1/2} \green D^{-1/2} (\chi_v - \chi_u).
+$$
+\end{defn}
+
+Since $\green$ is positive-semidefinite, $D^{-1/2} \green D^{-1/2}$ is positive-semidefinite also. Thus, like the classical effective resistance, $R(u, v)$ is real and nonnegative for any vertices $u$ and $v$. However, the magnetic effective resistance differs from the classical effective resistance in that it doesn't satisfy the triangle inequality. For example, consider a graph with vertices 1, 2, and 3 and signatures $\tau_{12} = -1$, $\tau_{23} = -1$, $\tau_{31} = 1$. For that graph, it is easy to check that
+$$
+R(1, 2) + R(2, 3) = \frac{2}{9} + \frac{2}{9} < \frac{2}{3} = R(1, 3).
+$$
+
+We can also define a generalized version of the effective resistance, which depends on the parameter $\alpha$.
+
+\begin{defn}
+Let $u$ and $v$ be vertices of $G$. Then the \textit{generalized magnetic effective resistance} between $u$ and $v$ is 
+$$
+R_\alpha(u, v) := \beta (\chi_v - \chi_u)^* D^{-1/2} \green_\beta D^{-1/2} (\chi_v - \chi_u).
+$$
+\end{defn}
+
+Similarly to the effective resistance, this generalized effective resistance is always real and nonnegative. An advantage of the generalized effective resistance is that it can be written in terms of the magnetic PageRank:
+
+\begin{prop}
+For any vertices $u$ and $v$, we have $$R_\alpha(u, v) = \frac{\lazypr(\alpha, \chi_v)(v)}{d_v} - \frac{\lazypr(\alpha, \chi_v)(u)}{d_u} + \frac{\lazypr(\alpha, \chi_u)(u)}{d_u} - \frac{\lazypr(\alpha, \chi_u)(v)}{d_v}.$$
+\end{prop}
+\begin{proof}
+\begin{align*}
+R_\alpha(u, v) &= \beta (\chi_v - \chi_u)^* D^{-1/2} \green_\beta D^{-1/2} (\chi_v - \chi_u) \\
+&= \beta (\chi_v - \chi_u)^* D^{-1} \asymgreen_\beta (\chi_v - \chi_u) \\
+&= \left( \chi_v^* D^{-1} - \chi_u^* D^{-1} \right) \left[ \beta \asymgreen_\beta \chi_v - \beta \asymgreen_\beta \chi_u \right] \\
+&= \left( \frac{1}{d_v} \chi_v^* - \frac{1}{d_u} \chi_u^* \right) \left[ \lazypr(\alpha, \chi_v) - \lazypr(\alpha, \chi_u) \right] \\
+&= \frac{\lazypr(\alpha, \chi_v)(v)}{d_v} - \frac{\lazypr(\alpha, \chi_v)(u)}{d_u} + \frac{\lazypr(\alpha, \chi_u)(u)}{d_u} - \frac{\lazypr(\alpha, \chi_u)(v)}{d_v}.
+\end{align*}
+\end{proof}
+
+The next theorem (a magnetic version of Theorem 9 of \cite{pagerankrandomwalks}) bounds the magnetic effective resistance using the generalized magnetic effective resistance. Since the generalized effective resistance can be expressed in terms of PageRank, this allows us to estimate the effective resistance using PageRank.
+
+\begin{thm}\label{bound on effective resistance}
+Let $u$ and $v$ be vertices of $G$. If $G$ is balanced, then we have
+$$
+\abs*{\beta R(u, v) - R_\alpha (u, v)}
+\leq \left( 1 - \frac{\beta^2}{\lambda_2^2} \right) \frac{\abs*{1 - \sigdist(u, v)}^2}{\vol(G)} + \frac{\beta^2}{\lambda_2^2}\left( \frac{1}{d_u} + \frac{1}{d_v} \right),
+$$
+And if $G$ is unbalanced, then
+$$
+\abs*{\beta R(u, v) - R_\alpha (u, v)}
+\leq \frac{\beta^2}{\lambda_1^2}\left( \frac{1}{d_u} + \frac{1}{d_v} \right).
+$$
+\end{thm}
+\begin{proof}
+First assume $G$ is balanced. Then,
+\begin{align*}
+\beta R(u, v) 
+&= \beta (\chi_v - \chi_u)^* D^{-1/2} \green D^{-1/2} (\chi_v - \chi_u) \\
+&= \beta \left( \frac{\chi_v}{\sqrt{d_v}} - \frac{\chi_u}{\sqrt{d_u}} \right)^* \left( \sum_{i=2}^n \frac{1}{\lambda_i} \phi_i \phi_i^* \right) \left( \frac{\chi_v}{\sqrt{d_v}} - \frac{\chi_u}{\sqrt{d_u}} \right) \\
+&= \sum_{i=2}^n \frac{\beta}{\lambda_i} \left( \frac{\chi_v}{\sqrt{d_v}} - \frac{\chi_u}{\sqrt{d_u}} \right)^* \phi_i \left[ \left( \frac{\chi_v}{\sqrt{d_v}} - \frac{\chi_u}{\sqrt{d_u}} \right)^* \phi_i \right]^* \\
+&= \sum_{i=2}^n \frac{\beta}{\lambda_i} \abs*{\frac{\phi_i(u)}{\sqrt{d_u}} - \frac{\phi_i(v)}{\sqrt{d_v}}}^2.
+\end{align*}
+Similarly,
+$$
+R_\alpha(u, v) = \sum_{i=1}^n \frac{\beta}{\lambda_i + \beta} \abs*{\frac{\phi_i(u)}{\sqrt{d_u}} - \frac{\phi_i(v)}{\sqrt{d_v}}}^2.
+$$
+It follows that
+\begin{align*}
+&\abs*{\beta R(u, v) - R_\alpha (u, v)} \\
+&= \abs*{\left[ \sum_{i=2}^n \left( \frac{\beta}{\lambda_i} - \frac{\beta}{\lambda_i + \beta} \right) \abs*{\frac{\phi_i(u)}{\sqrt{d_u}} - \frac{\phi_i(v)}{\sqrt{d_v}}}^2 \right] - \abs*{\frac{\phi_i(u)}{\sqrt{d_u}} - \frac{\phi_i(v)}{\sqrt{d_v}}}^2} \\
+&\leq \abs*{\frac{\phi_1(u)}{\sqrt{d_u}} - \frac{\phi_1(v)}{\sqrt{d_v}}}^2 + \sum_{i=2}^n \frac{\beta^2}{\lambda_i(\lambda_i + \beta)} \abs*{\frac{\phi_i(u)}{\sqrt{d_u}} - \frac{\phi_i(v)}{\sqrt{d_v}}}^2 \\
+&\leq \abs*{\frac{\phi_1(u)}{\sqrt{d_u}} - \frac{\phi_1(v)}{\sqrt{d_v}}}^2 + \frac{\beta^2}{\lambda_2(\lambda_2 + \beta)} \sum_{i=2}^n \abs*{\frac{\phi_i(u)}{\sqrt{d_u}} - \frac{\phi_i(v)}{\sqrt{d_v}}}^2 \\
+&\leq \abs*{\frac{\phi_1(u)}{\sqrt{d_u}} - \frac{\phi_1(v)}{\sqrt{d_v}}}^2 + \frac{\beta^2}{\lambda_2^2} \left( -\abs*{\frac{\phi_1(u)}{\sqrt{d_u}} - \frac{\phi_1(v)}{\sqrt{d_v}}}^2 + \sum_{i=1}^n \abs*{\frac{\phi_i(u)}{\sqrt{d_u}} - \frac{\phi_i(v)}{\sqrt{d_v}}}^2 \right) \\
+&= \left( 1 - \frac{\beta^2}{\lambda_2^2} \right) \abs*{\frac{\phi_1(u)}{\sqrt{d_u}} - \frac{\phi_1(v)}{\sqrt{d_v}}}^2 + \frac{\beta^2}{\lambda_2^2} \sum_{i=1}^n \abs*{\frac{\phi_i(u)}{\sqrt{d_u}} - \frac{\phi_i(v)}{\sqrt{d_v}}}^2 \\
+&= \left( 1 - \frac{\beta^2}{\lambda_2^2} \right) \abs*{\frac{\phi_1(u)}{\sqrt{d_u}} - \frac{\phi_1(v)}{\sqrt{d_v}}}^2 + \frac{\beta^2}{\lambda_2^2} \sum_{i=1}^n \left[ \frac{\abs*{\phi_i(u)}^2}{d_u} + \frac{\abs*{\phi_i(v)}^2}{d_v} - 2 \Re \left( \frac{\phi_i(u) \overline{\phi_i(v)}}{\sqrt{d_u d_v}} \right) \right] \\
+&= \left( 1 - \frac{\beta^2}{\lambda_2^2} \right) \abs*{\frac{\phi_1(u)}{\sqrt{d_u}} - \frac{\phi_1(v)}{\sqrt{d_v}}}^2 + \frac{\beta^2}{\lambda_2^2} \sum_{i=1}^n \left( \frac{1}{d_u} + \frac{1}{d_v} \right),
+\end{align*}
+where the last equality holds because the columns (and therefore the rows) of the matrix $[\phi_1, \dots \phi_n]$ are orthonormal. We finish the balanced case by observing that
+\begin{align*}
+\abs*{\frac{\phi_1(u)}{\sqrt{d_u}} - \frac{\phi_1(v)}{\sqrt{d_v}}}^2
+&= \abs*{\frac{l_1(u)}{\sqrt{\vol(G)}} - \frac{l_1(v)}{\sqrt{\vol(G)}}}^2 \\
+&= \frac{\abs*{l_1(u) \overline{l_1(v)} - l_1(v) \overline{l_1(v)}}^2}{\vol(G)} \\
+&= \frac{\abs*{1 - \sigdist(u, v)}^2}{\vol(G)} && \text{(by \cref{properties of connected graph with 0 eigenvalue})}.
+\end{align*}
+Finally, assume $G$ is unbalanced. Then we have
+\begin{align*}
+&\abs*{\beta R(u, v) - R_\alpha (u, v)} \\
+&= \sum_{i=1}^n \left( \frac{\beta}{\lambda_i} - \frac{\beta}{\lambda_i + \beta} \right) \abs*{\frac{\phi_i(u)}{\sqrt{d_u}} - \frac{\phi_i(v)}{\sqrt{d_v}}}^2 \\
+&\leq \frac{\beta^2}{\lambda_1(\lambda_1 + \beta)} \sum_{i=1}^n \abs*{\frac{\phi_i(u)}{\sqrt{d_u}} - \frac{\phi_i(v)}{\sqrt{d_v}}}^2 \\
+&\leq \frac{\beta^2}{\lambda_1^2} \sum_{i=1}^n \left[ \frac{\abs*{\phi_i(u)}^2}{d_u} + \frac{\abs*{\phi_i(v)}^2}{d_v} - 2 \Re \left( \frac{\phi_i(u) \overline{\phi_i(v)}}{\sqrt{d_u d_v}} \right) \right] \\
+&= \frac{\beta^2}{\lambda_1^2} \sum_{i=1}^n \left( \frac{1}{d_u} + \frac{1}{d_v} \right).
+\end{align*}
+\end{proof}
+
+We remark that whether or not $G$ is balanced, \cref{bound on effective resistance} implies that $R(u, v)$ can be made arbitrary close to $R_\alpha (u, v) / \beta$ with a sufficiently small choice of $\alpha$. If $G$ is unbalanced this follows immediately from the second inequality in the theorem. If $G$ is balanced, unbalance the graph by a very small amount and then once again use the second inequality.
+
+The magnetic effective resistance is related to another quantity called the magnetic hitting time. The classical hitting time for a non-magnetic graph is the expected length of a random walk that begins at a vertex $u$ and ends at a vertex $v$. To define a magnetic version of the hitting time, we borrow an expression for the hitting time from $\cite{pagerankrandomwalks}$, but we replace the classical Green's function with the magnetic Green's function:
+
+\begin{defn}
+Given two vertices $u$ and $v$, the \textit{magnetic hitting time} from $u$ to $v$ is 
+$$
+H(u, v) := \vol(G) (\chi_v - \chi_u)^* D^{-1/2} \green D^{-1/2} \chi_v.
+$$  
+\end{defn}
+
+From the definitions, we get the relationship
+$$R(u, v) = \frac{H(u, v) + H(v, u)}{\vol(G)}.$$
+
+\section{Switching with Magnetic Hitting Time and Effective Resistance}
+
+Switching functions interact nicely with the magnetic effective resistance and magnetic hitting time. This is ultimately because switching functions interact nicely with Green's function, as the next lemma shows.
+
+\begin{lem}
+Suppose that a switching function $c: V \rightarrow S^1$ is applied to $G$ to obtain a new magnetic graph $G^\prime$. Let $\green^\prime$ be the magnetic Green's function for $G^\prime$. Let $C$ be the diagonal matrix indexed by the vertices whose entries are given by $C(u, u) = c_u$. Then, $$\green^\prime = C^* \green C.$$
+\end{lem}
+\begin{proof}
+Recall that $\phi_1, \dots, \phi_n$ are orthonormal eigenfunctions for $\lap$, with corresponding eigenvalues $\lambda_1, \dots, \lambda_n$. The Laplacian for $G^\prime$ is $\lap^\prime := C^* \lap C$, so the list $C^* \phi_1, \dots, C^* \phi_n$ is made up of eigenfunctions of $\lap^\prime$, and the eigenvalues are still $\lambda_1, \dots, \lambda_n$. It is easy to check that these eigenfunctions have norm 1. Moreover, for every $1 \leq i < j \leq n$ we have
+$$
+\inner*{C^* \phi_i, C^* \phi_j} = \inner*{\phi_i, C C^* \phi_j} = \inner*{\phi_i, I \phi_j} = \inner*{\phi_i, \phi_j} = 0.
+$$
+So the eigenfunctions are actually orthnormal. Thus, by the definition of Green's function we have
+$$
+\green^\prime = \sum_{\substack{1 \leq i \leq n \\ \lambda_i \neq 0}} \frac{1}{\lambda_i} \left( C^* \phi_i \right) \left( C^* \phi_i \right)^*
+= \sum_{\substack{1 \leq i \leq n \\ \lambda_i \neq 0}} \frac{1}{\lambda_i} C^* \phi_i \phi_i^* C
+= C^* \left( \sum_{\substack{1 \leq i \leq n \\ \lambda_i \neq 0}} \frac{1}{\lambda_i} \phi_i \phi_i^* \right) C
+= C^* \green C.
+$$
+\end{proof}
+
+With this lemma, it is easy to check the following series of statements.
+
+\begin{prop}
+Suppose that a switching function $c: V \rightarrow S^1$ is applied to $G$ to obtain a new graph $G^\prime$. Let $R^c$ be the magnetic effective resistance function for $G^\prime$. Then for any vertices $u$ and $v$, we have $$R^c(u, v) = (c_v \chi_v - c_u \chi_u)^* D^{-1/2} \green D^{-1/2} (c_v \chi_v - c_u \chi_u).$$
+\end{prop}
+
+\begin{prop}
+Suppose that a switching function $c: V \rightarrow S^1$ is applied to $G$ to obtain a new graph $G^\prime$. Let $H^c$ be the hitting time function for $G^\prime$. Then for any vertices $u$ and $v$, we have $$H^c(u, v) = (c_v \chi_v - c_u \chi_u)^* D^{-1/2} \green D^{-1/2} (c_v \chi_v).$$
+\end{prop}
+
+\begin{prop}
+If $u, v$ are vertices of $G$ and $b, c$ are switching functions for $G$ with $\overline{b_u}b_v = \overline{c_u}c_v$, then $R^b (u, v) = R^c (u, v)$ and $H^b (u, v) = H^c (u, v)$.
+\end{prop}
+
+\begin{corollary}
+If $u, v$ are vertices of $G$ and $c$ is a switching function for $G$ with $c_u = c_v$, then $R^c (u, v) = R(u, v)$ and $H^c (u, v) = H(u, v)$. \end{corollary}
+
+\begin{corollary}
+If $u, v$ are vertices of $G$ and $G$ is balanced with $\sigdist(u, v) = 1$, then $R(u, v)$ equals the classical effective resistance between $u$ and $v$ for the underlying simple graph, and $H(u, v)$ equals the classical hitting time between $u$ and $v$ for the underlying simple graph. \end{corollary}
+
+To state the next theorem nicely, we will make a new definition.   
+\begin{defn}
+For a connected magnetic graph $G$, the \textit{average signature distance} between two vertices $u$ and $v$ is
+$$
+\asd(u, v) := \begin{cases}
+\sigdist(u, v) &\mbox{if $G$ is balanced} \\
+0 &\mbox{otherwise}
+\end{cases}.
+$$
+\end{defn}
+Why is it called the average signature distance? When we walk along a path from $u$ to $v$, we accumulate a product of signatures. Choosing a different path may result in a different product. Informally, the average signature distance is the (unweighted) average of all the unique products we can get by choosing different paths.
+
+The next (and final) theorem is a magnetic version of the non-magnetic hitting time recurrence given in \cite{pagerankrandomwalks} (equation 9). Our proof of the recurrence uses ideas from the proof of Lemma 1 in that same paper.
+
+\begin{thm}
+Let $u$ and $v$ be distinct vertices in $G$. Then,
+$$
+H(u, v) = \asd(u, v) + \frac{1}{d_u} \sum_{w \sim u} H^w(w, v)
+$$
+where $H^w(w, v)$ denotes the hitting time from $w$ to $v$, computed on a switched version of $G$ where the switching function $c$ satisfies $\overline{c_w}c_v = \sigma_{uw}$. Or, if $v \sim u$ and $\sigma_{uv} \neq 1$, then $H^v(v, v)$ denotes 
+$$
+(1 - \sigma_{uv}) \vol(G) \chi_v^* D^{-1/2} \green D^{-1/2} \chi_v.
+$$  
+\end{thm}
+\begin{proof}
+We have (justifications for numbered steps are below):
+\begin{align}
+\frac{H(u, v)}{\vol(G)} 
+&= (\chi_v - \chi_u)^* D^{-1/2} \green D^{-1/2} \chi_v \nonumber \\
+&= \chi_v^* D^{-1/2} \green D^{-1/2} \chi_v - \chi_u^* D^{-1/2} \green D^{-1/2} \chi_v \nonumber \\
+&= \chi_v^* D^{-1/2} \green D^{-1/2} \chi_v + \chi_u^* D^{-1/2} I D^{-1/2} \chi_v - \chi_u^* D^{-1/2} \green D^{-1/2} \chi_v \nonumber \\
+&= \chi_v^* D^{-1/2} \green D^{-1/2} \chi_v + \chi_u^* D^{-1/2} (I -\lap \green) D^{-1/2} \chi_v - \chi_u^* D^{-1/2} (I - \lap) \green D^{-1/2} \chi_v \nonumber \\
+&= \frac{\asd(u, v)}{\vol(G)} + \chi_v^* D^{-1/2} \green D^{-1/2} \chi_v - \chi_u^* D^{-1/2} (I - \lap) \green D^{-1/2} \chi_v \label{eqn:lap and green to asd} \\
+&= \frac{\asd(u, v)}{\vol(G)} + \chi_v^* D^{-1/2} \green D^{-1/2} \chi_v - \chi_u^* D^{-1/2} \normadj \green D^{-1/2} \chi_v \nonumber \\
+&= \frac{\asd(u, v)}{\vol(G)} + \chi_v^* D^{-1/2} \green D^{-1/2} \chi_v - \chi_u^* D^{-1} A D^{-1/2} \green D^{-1/2} \chi_v \nonumber \\
+&= \frac{\asd(u, v)}{\vol(G)} + \chi_v^* D^{-1/2} \green D^{-1/2} \chi_v - \frac{1}{d_u} \chi_u^* A D^{-1/2} \green D^{-1/2} \chi_v \nonumber \\
+&= \frac{\asd(u, v)}{\vol(G)} + \chi_v^* D^{-1/2} \green D^{-1/2} \chi_v - \frac{1}{d_u} \sum_{w \sim u} \sigma_{uw} \chi_w^* D^{-1/2} \green D^{-1/2} \chi_v \label{eqn:adj to sum} \\
+&= \frac{\asd(u, v)}{\vol(G)} + \frac{1}{d_u} \left( \sum_{w \sim u} \chi_v^* D^{-1/2} \green D^{-1/2} \chi_v \right) - \frac{1}{d_u} \sum_{w \sim u} \sigma_{uw} \chi_w^* D^{-1/2} \green D^{-1/2} \chi_v \nonumber \\
+&= \frac{\asd(u, v)}{\vol(G)} + \frac{1}{d_u} \sum_{w \sim u} \left( \chi_v^* - \sigma_{uw} \chi_w^* \right) D^{-1/2} \green D^{-1/2} \chi_v \nonumber \\
+&= \frac{\asd(u, v)}{\vol(G)} + \frac{1}{d_u} \sum_{w \sim u} \left( \chi_v - \sigma_{wu} \chi_w \right)^* D^{-1/2} \green D^{-1/2} \chi_v \nonumber \\
+&= \frac{\asd(u, v)}{\vol(G)} + \frac{1}{d_u} \sum_{w \sim u} \frac{H^w(w, v)}{\vol(G)}. \nonumber
+\end{align}
+
+For \cref{eqn:lap and green to asd}, observe that if $G$ is unbalanced, then $\lap \green = I$ and the result follows. Now assume that $G$ is balanced. Then $I - \lap \green = \phi_1 \phi_1^*$, since those matrices act the same way on the basis $\phi_1, \dots, \phi_n$. It follows that
+\begin{align*}
+\chi_u^* D^{-1/2} (I - \lap \green) D^{-1/2} \chi_v
+&= \chi_u^* D^{-1/2} \phi_1 \phi_1^* D^{-1/2} \chi_v \\
+&= \frac{1}{\sqrt{d_u d_v}} \chi_u^* \phi_1 \phi_1^* \chi_v \\
+&= \frac{1}{\sqrt{d_u d_v}} \phi_1(u) \overline{\phi_1(v)} \\
+&= \frac{1}{\sqrt{d_u d_v}} \left( \frac{\sqrt{d_u}}{\sqrt{\vol(G)}} l_1(u) \right) \left( \frac{\sqrt{d_v}}{\sqrt{\vol(G)}} \overline{l_1(v)} \right) && \text{(by \cref{eigenvectors of normalized lap via eigenvectors of lap})} \\
+&= \frac{l_1(u) \overline{l_1(v)}}{\vol(G)} \\
+&= \frac{\sigdist(u, v)}{\vol(G)} && \text{(by \cref{properties of connected graph with 0 eigenvalue})}.
+\end{align*}
+
+For \cref{eqn:adj to sum}, note that for any function $y: V \rightarrow \C$, we have
+$$
+\chi_u^* A y = (A y)(u) = \sum_{j=1}^n A_{uj} y(j) = \sum_{w \sim u} A_{uw} y(w) = \sum_{w \sim u} \sigma_{uw} y(w) = \sum_{w \sim u} \sigma_{uw} \chi^*_w y.
+$$
+\end{proof}
+
+\bibliographystyle{plain}
+\bibliography{refs}
+
+\end{document}
